@@ -60,13 +60,25 @@ const MainLayout = () => {
     }, [])
 
     return (
-        <div className={`flex h-screen overflow-hidden ${dark ? 'dark' : ''} bg-[#f3f4f9]`}>
+        <div className={`flex h-screen overflow-hidden ${dark ? 'dark' : ''} bg-[#f3f4f9] dark:bg-[#0c1220]`}>
+            {/* Mobile Backdrop for Primary Sidebar */}
+            {sidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-gray-900/50 z-30 lg:hidden transition-opacity"
+                    onClick={() => {
+                        setSidebarOpen(false)
+                        setActiveCategory(null)
+                    }}
+                />
+            )}
+
             {/* Main Primary Sidebar */}
-            <aside className={`shrink-0 bg-white border-r border-[#e5e7eb] flex flex-col transition-all duration-300 z-40 ${sidebarOpen ? 'w-[260px]' : 'w-0 lg:w-[72px]'} overflow-hidden relative`}>
+            <aside className={`shrink-0 bg-white border-r border-[#e5e7eb] flex flex-col transition-all duration-300 z-40 fixed lg:relative h-full overflow-hidden ${sidebarOpen ? 'w-[260px] translate-x-0 shadow-2xl lg:shadow-none' : 'w-[260px] -translate-x-full lg:translate-x-0 lg:w-[72px]'
+                }`}>
                 {/* Logo */}
                 <div className="h-16 flex items-center px-4 border-b border-[#e5e7eb] shrink-0">
                     {sidebarOpen ? (
-                        <Link to="/" className="flex items-center gap-2.5 font-extrabold text-lg text-gray-900 truncate" onClick={() => setActiveCategory(null)}>
+                        <Link to="/" className="flex items-center gap-2.5 font-extrabold text-lg text-gray-900 truncate" onClick={() => { setActiveCategory(null); if (window.innerWidth < 1024) setSidebarOpen(false); }}>
                             <span className="w-8 h-8 rounded-lg bg-primary-600 text-white flex items-center justify-center text-sm font-bold shrink-0">A</span>
                             AllThingsCambridge
                         </Link>
@@ -93,7 +105,10 @@ const MainLayout = () => {
                                             key={item.label}
                                             to={item.to}
                                             end={item.exact}
-                                            onClick={() => setActiveCategory(null)}
+                                            onClick={() => {
+                                                if (item.to && window.innerWidth < 1024) setSidebarOpen(false)
+                                                setActiveCategory(null)
+                                            }}
                                             className={({ isActive }) =>
                                                 `flex items-center ${sidebarOpen ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl mb-1 text-sm font-semibold transition-all group ` +
                                                 (isActive && !activeCategory
@@ -136,7 +151,7 @@ const MainLayout = () => {
                     {isAdmin && (
                         <div className="px-4 mb-4">
                             {sidebarOpen && <p className="text-[11px] font-bold tracking-widest text-[#9ca3af] uppercase mb-3 px-2">Admin</p>}
-                            <NavLink to="/admin" onClick={() => setActiveCategory(null)} className={({ isActive }) =>
+                            <NavLink to="/admin" onClick={() => { setActiveCategory(null); if (window.innerWidth < 1024) setSidebarOpen(false); }} className={({ isActive }) =>
                                 `flex items-center ${sidebarOpen ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl text-sm font-semibold transition-all ` +
                                 (isActive && !activeCategory ? 'bg-secondary-50 text-secondary-700' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900')
                             }>
@@ -172,45 +187,53 @@ const MainLayout = () => {
 
             {/* Secondary Navigation Sidebar for Resources */}
             {activeCategory && (
-                <div className="w-[300px] h-full bg-[#f8fafc] border-r border-[#e5e7eb] flex flex-col shrink-0 overflow-y-auto z-30 shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] transition-all animate-in slide-in-from-left-8">
-                    <div className="p-5 border-b border-[#e5e7eb] flex items-center justify-between sticky top-0 bg-[#f8fafc] z-10 shrink-0">
-                        <h2 className="text-lg font-extrabold text-gray-900 capitalize">
-                            {navSections[0].items.find(i => i.id === activeCategory)?.label || 'Resources'}
-                        </h2>
-                        <button onClick={() => setActiveCategory(null)} className="p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-800 rounded-lg transition-colors">
-                            <X size={18} />
-                        </button>
-                    </div>
-                    <div className="p-4 space-y-6">
-                        {levels.length === 0 && (
-                            <p className="text-sm text-gray-400 text-center py-6">Loading...</p>
-                        )}
-                        {levels.map(level => {
-                            const levelSubjects = subjects.filter(s => s.level_id === level.id)
-                            if (levelSubjects.length === 0) return null
-                            return (
-                                <div key={level.id}>
-                                    <h3 className="text-[11px] font-bold tracking-widest text-[#9ca3af] uppercase mb-2 px-2">{level.name}</h3>
-                                    <div className="space-y-0.5">
-                                        {levelSubjects.map(subject => (
-                                            <Link
-                                                key={subject.id}
-                                                to={`/levels/${level.slug}/${subject.slug}?tab=${activeCategory}`}
-                                                onClick={() => {
-                                                    setActiveCategory(null) // Close sidebar
-                                                    if (window.innerWidth < 1024) setSidebarOpen(false) // Handle mobile
-                                                }}
-                                                className="block px-3 py-2.5 rounded-xl text-sm font-semibold text-[#4b5563] hover:bg-white hover:text-[#2d59ff] hover:shadow-sm transition-all"
-                                            >
-                                                {subject.name}
-                                            </Link>
-                                        ))}
-                                    </div>
+                <>
+                    {/* Mobile Backdrop for Secondary Sidebar */}
+                    <div
+                        className="fixed inset-0 bg-gray-900/40 z-40 lg:hidden transition-opacity"
+                        onClick={() => setActiveCategory(null)}
+                    />
+                    <div className="w-[300px] max-w-[80vw] h-full bg-[#f8fafc] border-r border-[#e5e7eb] flex flex-col shrink-0 overflow-y-auto z-50 lg:z-30 shadow-2xl lg:shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] transition-all animate-in slide-in-from-left-8 fixed left-0 lg:relative lg:left-0">
+                        <div className="p-5 border-b border-[#e5e7eb] flex items-center justify-between sticky top-0 bg-[#f8fafc] z-10 shrink-0">
+                            <h2 className="text-lg font-extrabold text-gray-900 capitalize">
+                                {navSections[0].items.find(i => i.id === activeCategory)?.label || 'Resources'}
+                            </h2>
+                            <button onClick={() => setActiveCategory(null)} className="p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-800 rounded-lg transition-colors">
+                                <X size={18} />
+                            </button>
+                        </div>
+                        <div className="p-4 space-y-6">
+                            {levels.length === 0 && (
+                                <div className="mb-4">
+                                    <p className="text-xs text-gray-400 font-medium px-2 mb-2 text-center bg-gray-50 py-2 rounded-xl border border-dashed border-gray-200">
+                                        Supabase is empty. Showing default levels:
+                                    </p>
                                 </div>
-                            )
-                        })}
+                            )}
+                            <div className="space-y-2">
+                                {(levels.length > 0 ? levels : [
+                                    { id: 'default-1', name: 'Checkpoint', slug: 'checkpoint' },
+                                    { id: 'default-2', name: 'IGCSE', slug: 'igcse' },
+                                    { id: 'default-3', name: 'O Level', slug: 'o-level' },
+                                    { id: 'default-4', name: 'AS & A Level', slug: 'as-a-level' }
+                                ]).map(level => (
+                                    <Link
+                                        key={level.id}
+                                        to={`/levels/${level.slug}?tab=${activeCategory}`}
+                                        onClick={() => {
+                                            setActiveCategory(null) // Close sidebar
+                                            if (window.innerWidth < 1024) setSidebarOpen(false) // Handle mobile
+                                        }}
+                                        className="group flex items-center justify-between px-4 py-3 bg-white border border-gray-100 rounded-xl hover:border-[#2d59ff] hover:shadow-sm transition-all text-[#4b5563] hover:text-[#2d59ff]"
+                                    >
+                                        <span className="font-bold text-sm">{level.name}</span>
+                                        <ChevronRight size={16} className="text-gray-300 group-hover:text-[#2d59ff] group-hover:translate-x-0.5 transition-all" />
+                                    </Link>
+                                ))}
+                            </div>
+                        </div>
                     </div>
-                </div>
+                </>
             )}
 
             {/* Main content */}

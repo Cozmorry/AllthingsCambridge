@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { ArrowRight, Lock } from 'lucide-react'
 
 const LevelPage = () => {
     const { levelSlug } = useParams()
+    const [searchParams] = useSearchParams()
+    const urlTab = searchParams.get('tab')
+
     const [level, setLevel] = useState(null)
     const [subjects, setSubjects] = useState([])
     const [loading, setLoading] = useState(true)
@@ -35,18 +38,43 @@ const LevelPage = () => {
             </nav>
 
             <div className="mb-8">
-                <h1 className="text-3xl font-extrabold text-gray-900 mb-2">{level?.name} Subjects</h1>
+                <h1 className="text-3xl font-extrabold text-gray-900 mb-2">{level?.name ?? 'Subjects'}</h1>
                 <p className="text-gray-500">{level?.description ?? 'Select a subject to explore study materials.'}</p>
             </div>
 
-            {subjects.length === 0 ? (
-                <EmptyState msg="No subjects available yet. Check back soon." />
+            {(subjects.length === 0) ? (
+                <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                    {/* Fallback mock subjects */}
+                    {[
+                        { id: 'mock1', slug: 'biology', name: 'Biology', description: 'Explore cell structures, genetics, and ecology.', icon: '🧬' },
+                        { id: 'mock2', slug: 'chemistry', name: 'Chemistry', description: 'Dive into chemical bonds, elements, and organic reactions.', icon: '🧪' },
+                        { id: 'mock3', slug: 'physics', name: 'Physics', description: 'Understand forces, energy, and thermodynamics.', icon: '⚡' }
+                    ].map((sub) => (
+                        <Link
+                            key={sub.id}
+                            to={`/levels/${levelSlug}/${sub.slug}${urlTab ? `?tab=${urlTab}` : ''}`}
+                            className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
+                        >
+                            <div className="flex items-start justify-between mb-4">
+                                <div className="w-12 h-12 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center text-xl">
+                                    {sub.icon ?? '📚'}
+                                </div>
+                                {sub.is_premium && <Lock size={14} className="text-secondary-500 mt-1" />}
+                            </div>
+                            <h3 className="text-base font-bold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">{sub.name}</h3>
+                            <p className="text-sm text-gray-400 line-clamp-2 mb-4">{sub.description}</p>
+                            <div className="flex items-center text-primary-600 text-sm font-semibold">
+                                Study Now <ArrowRight size={15} className="ml-1 group-hover:translate-x-1.5 transition-transform" />
+                            </div>
+                        </Link>
+                    ))}
+                </div>
             ) : (
                 <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
                     {subjects.map((sub) => (
                         <Link
                             key={sub.id}
-                            to={`/levels/${levelSlug}/${sub.slug}`}
+                            to={`/levels/${levelSlug}/${sub.slug}${urlTab ? `?tab=${urlTab}` : ''}`}
                             className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
                         >
                             <div className="flex items-start justify-between mb-4">
