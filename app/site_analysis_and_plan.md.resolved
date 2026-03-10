@@ -1,0 +1,73 @@
+# AllThingsCambridge — Site Analysis & Rebuild Plan
+
+## Current Site vs Benchmark Comparison
+
+````carousel
+![Current AllThingsCambridge Homepage](C:\Users\cozmo\.gemini\antigravity\brain\16c649f7-84a2-4222-bac7-25c8e1ebc24a\atc_homepage_1773128255641.png)
+<!-- slide -->
+![SaveMyExams Benchmark - Flashcard Design](C:\Users\cozmo\.gemini\antigravity\brain\16c649f7-84a2-4222-bac7-25c8e1ebc24a\savemyexams_flashcards_front_1773128633642.png)
+````
+
+---
+
+## Current Site Analysis
+
+| Aspect | Current State | Issues |
+|--------|--------------|--------|
+| **Homepage** | "Welcome to AllThingsCambridge" + 4 level cards (Checkpoint, O Level, IGCSE, A Level) + features section | Feels like a dashboard, not a landing page. Lacks hero impact and polish |
+| **Sidebar** | Always-visible left sidebar with Learning Resources, Community, Information sections | Takes up too much space; feels like an admin panel rather than a study platform |
+| **Header** | Logo + dark mode toggle + Log In / Sign Up | Clean but minimal |
+| **Color Scheme** | Deep teal (#0d9488) primary, light gray background | Decent but could be more vibrant. Lacks visual hierarchy |
+| **Flashcards** | Tab exists but shows "No Flashcards Available" — no actual flashcard UI built | Needs full implementation from scratch |
+| **Navigation** | Level → Subject → Resource Type (tabbed) | Functional but lacks breadcrumbs and topic-level drilling |
+
+## Benchmark (SaveMyExams) Key Design Patterns
+
+### Flashcard Design ⭐
+- **Large centered card** with rounded corners + subtle shadow
+- **Stack effect** — visual representation of cards behind
+- **3D flip animation** on click (Front/Back labels)
+- **Progress indicator**: "1/68" counter + thin progress bar
+- **Learning tracker**: "Still learning" (red) and "Know" (green) pill buttons
+- **Topic header** with breadcrumb navigation above
+- **"Download" button** for offline access
+
+### Navigation
+- **Two-tier sidebar**: Primary nav (left) + Topic nav (center-left, collapsible with chapters/subtopics)
+- **Clean breadcrumbs**: GCSE / Biology / AQA / Flashcards / Cell Structure
+- **"Hide menu" toggle** for distraction-free study mode
+
+### Visual Polish
+- Modern sans-serif typography (Inter-like)
+- White & light gray backgrounds with blue (#0055FF) accents
+- Clean spacing and card-based layouts
+- Trust signals and CTA buttons
+
+---
+
+## What Needs to Change (Scope)
+
+### 🔴 Must Do (Client Requirements)
+1. **Better Homepage UI** — More visually impactful hero section, better visual hierarchy
+2. **Flashcard Design** — Match the benchmark's card-based study mode with flip animations, progress tracking, and learning/known categorization
+
+### 🟡 Should Do (Recommended Improvements)
+3. **Breadcrumb navigation** — for deep content like Level > Subject > Topic > Flashcard
+4. **Collapsible sidebar** — study mode / distraction-free reading
+5. **Topic-level navigation** for flashcards (like SaveMyExams' chapter/subtopic sidebar)
+6. **Progress tracking UI** on flashcard pages
+
+### 🟢 Nice to Have
+7. **Micro-animations** — smooth transitions, hover effects
+8. **Dark mode polish** — make it feel premium
+9. **Mobile responsiveness** improvements
+
+---
+
+## What to Keep (Don't Change)
+- ✅ Overall app structure (sidebar + main content area)
+- ✅ Level system (Checkpoint, O Level, IGCSE, A Level)
+- ✅ Resource tabs (Notes, Past Papers, Topical Questions, Flashcards)
+- ✅ Auth system (login/signup in header)
+- ✅ Community section (Forums, Blog, Testimonials)
+- ✅ Dark mode toggle
