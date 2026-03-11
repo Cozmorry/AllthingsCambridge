@@ -56,12 +56,12 @@ const AdminResources = () => {
     }
 
     return (
-        <div className="p-8">
-            <h1 className="text-2xl font-extrabold text-gray-900 mb-8">Resources</h1>
+        <div className="p-4 sm:p-8 max-w-7xl mx-auto dark:bg-[#0c1220] min-h-full">
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-8">Resources</h1>
             <div className="grid lg:grid-cols-2 gap-8">
                 {/* Form */}
-                <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                    <h2 className="font-bold text-gray-900 mb-5">Add Resource</h2>
+                <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm flex flex-col h-fit">
+                    <h2 className="text-xl font-extrabold text-gray-900 mb-6">Upload Resource</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <Select label="Subject" value={form.subject_id} onChange={v => setForm(f => ({ ...f, subject_id: v, topic_id: '' }))} options={subjects.map(s => ({ value: s.id, label: s.name }))} required />
                         {topics.length > 0 && <Select label="Topic (optional)" value={form.topic_id} onChange={v => setForm(f => ({ ...f, topic_id: v }))} options={[{ value: '', label: '— No topic —' }, ...topics.map(t => ({ value: t.id, label: t.name }))]} />}
@@ -76,27 +76,37 @@ const AdminResources = () => {
                             <input type="checkbox" checked={form.is_premium} onChange={e => setForm(f => ({ ...f, is_premium: e.target.checked }))} className="rounded" />
                             Premium only
                         </label>
-                        <button type="submit" disabled={saving} className="w-full py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-sm transition-colors disabled:opacity-60">
-                            {uploading ? 'Uploading…' : saving ? 'Saving…' : 'Add Resource'}
+                        <button type="submit" disabled={saving || uploading} className="w-full py-3.5 mt-2 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-lg hover:shadow-primary-600/20 disabled:opacity-60 flex items-center justify-center gap-2">
+                            {uploading ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Uploading…</> : saving ? 'Saving…' : <><Upload size={16} /> Add Resource</>}
                         </button>
                     </form>
                 </div>
 
                 {/* List */}
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                    <div className="p-5 border-b border-gray-100"><h2 className="font-bold text-gray-900">All Resources ({resources.length})</h2></div>
-                    <div className="overflow-y-auto max-h-[560px]">
+                <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm flex flex-col h-[700px]">
+                    <div className="p-6 border-b border-gray-100 bg-gray-50/50 shrink-0">
+                        <h2 className="font-extrabold text-xl text-gray-900">Library</h2>
+                        <p className="text-sm font-medium text-primary-600 mt-1">{resources.length} resources available</p>
+                    </div>
+                    <div className="overflow-y-auto flex-1 bg-white">
                         {resources.length === 0 ? (
-                            <div className="flex flex-col items-center py-16 text-gray-400"><FileText size={32} className="mb-2 opacity-30" /><p>No resources yet</p></div>
-                        ) : resources.map(r => (
-                            <div key={r.id} className="flex items-center gap-3 px-5 py-3 border-b border-gray-50 last:border-0 group">
-                                <FileText size={16} className="text-gray-400 shrink-0" />
-                                <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-900 truncate">{r.title}</p>
-                                    <p className="text-xs text-gray-400">{r.subjects?.name} · {r.type}</p>
+                            <div className="flex flex-col items-center justify-center h-full py-20 text-gray-400 bg-gray-50/30">
+                                <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                                    <FileText size={36} className="opacity-40" />
                                 </div>
-                                <button onClick={() => handleDelete(r.id)} className="opacity-0 group-hover:opacity-100 p-1.5 text-red-400 hover:text-red-600 transition-all">
-                                    <Trash2 size={15} />
+                                <p className="font-medium">No resources uploaded yet</p>
+                            </div>
+                        ) : resources.map(r => (
+                            <div key={r.id} className="flex items-center gap-4 px-6 py-4 border-b border-gray-50 last:border-0 group hover:bg-gray-50/50 transition-colors">
+                                <div className="w-10 h-10 rounded-xl bg-primary-50 flex items-center justify-center text-primary-600 shrink-0">
+                                    <FileText size={18} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-bold text-gray-900 truncate">{r.title}</p>
+                                    <p className="text-xs font-medium text-gray-500 mt-0.5">{r.subjects?.name} <span className="text-gray-300 mx-1">•</span> <span className="uppercase tracking-wider text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">{r.type.replace('_',' ')}</span></p>
+                                </div>
+                                <button onClick={() => handleDelete(r.id)} className="opacity-0 group-hover:opacity-100 p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
+                                    <Trash2 size={16} />
                                 </button>
                             </div>
                         ))}

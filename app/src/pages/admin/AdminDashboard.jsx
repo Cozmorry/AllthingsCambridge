@@ -36,13 +36,22 @@ const AdminDashboard = () => {
             <h1 className="text-2xl font-extrabold text-gray-900 mb-8">Dashboard</h1>
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-10">
                 {cards.map(({ label, value, icon: Icon, color, to }) => (
-                    <Link key={label} to={to} className="bg-white rounded-2xl border border-gray-100 p-6 flex items-center gap-5 hover:shadow-md hover:border-gray-200 transition-all">
-                        <div className={`w-12 h-12 rounded-xl ${color} flex items-center justify-center text-white`}>
-                            <Icon size={22} />
+                    <Link key={label} to={to} className="group relative bg-white rounded-3xl border border-gray-100 p-6 overflow-hidden hover:shadow-2xl hover:shadow-primary-100 hover:-translate-y-1 transition-all duration-300">
+                        {/* Soft background glow */}
+                        <div className={`absolute -right-6 -top-6 w-32 h-32 opacity-10 rounded-full blur-2xl ${color} transition-opacity group-hover:opacity-20`} />
+                        
+                        <div className="flex items-center justify-between mb-4 relative z-10">
+                            <div className={`w-12 h-12 rounded-2xl ${color} flex items-center justify-center text-white shadow-lg shadow-black/5 group-hover:scale-110 transition-transform duration-300`}>
+                                <Icon size={22} />
+                            </div>
+                            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:text-primary-600 transition-colors">
+                                <span className="text-xl font-bold leading-none translate-x-[1px] -translate-y-[1px]">↗</span>
+                            </div>
                         </div>
-                        <div>
-                            <p className="text-2xl font-extrabold text-gray-900">{value}</p>
-                            <p className="text-sm text-gray-500">{label}</p>
+                        
+                        <div className="relative z-10 mt-2">
+                            <p className="text-4xl font-black text-gray-900 tracking-tight group-hover:text-primary-600 transition-colors">{value}</p>
+                            <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide mt-1">{label}</p>
                         </div>
                     </Link>
                 ))}
@@ -50,28 +59,43 @@ const AdminDashboard = () => {
 
             <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                    <h2 className="font-bold text-gray-900 mb-4">Quick Links</h2>
-                    <div className="space-y-2">
+                    <h2 className="font-extrabold text-xl text-gray-900 mb-6">Quick Links</h2>
+                    <div className="space-y-3">
                         {[
-                            ['Manage Levels', '/admin/levels'],
-                            ['Manage Subjects', '/admin/subjects'],
-                            ['Upload Resources', '/admin/resources'],
-                            ['Add Flashcards', '/admin/flashcards'],
-                            ['Write Blog Post', '/admin/blog'],
-                        ].map(([label, to]) => (
-                            <Link key={label} to={to} className="flex items-center gap-2 px-4 py-2.5 rounded-xl hover:bg-gray-50 text-sm font-medium text-gray-700 transition-colors">→ {label}</Link>
+                            ['Levels', '/admin/levels', 'Manage your academic structure'],
+                            ['Subjects', '/admin/subjects', 'Add or update curriculums'],
+                            ['Resources', '/admin/resources', 'Upload past papers and notes'],
+                            ['Flashcards', '/admin/flashcards', 'Build interactive study decks'],
+                            ['Blog', '/admin/blog', 'Publish news and articles'],
+                        ].map(([label, to, desc]) => (
+                            <Link key={label} to={to} className="group flex items-center justify-between p-4 rounded-2xl hover:bg-[#f8fafc] border border-transparent hover:border-gray-100 transition-all">
+                                <div>
+                                    <p className="font-bold text-gray-900 text-sm group-hover:text-primary-600 transition-colors">{label}</p>
+                                    <p className="text-xs text-gray-400">{desc}</p>
+                                </div>
+                                <span className="text-gray-300 group-hover:text-primary-600 transition-colors transform group-hover:translate-x-1">→</span>
+                            </Link>
                         ))}
                     </div>
                 </div>
-                <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                    <h2 className="font-bold text-gray-900 mb-4">Getting Started</h2>
-                    <ol className="space-y-2 text-sm text-gray-600 list-decimal list-inside">
-                        <li>Create your <Link to="/admin/levels" className="text-primary-600 hover:underline">Levels</Link> (Checkpoint, O Level, IGCSE, A Level)</li>
-                        <li>Add <Link to="/admin/subjects" className="text-primary-600 hover:underline">Subjects</Link> under each level</li>
-                        <li>Create <Link to="/admin/topics" className="text-primary-600 hover:underline">Topics</Link> within each subject</li>
-                        <li>Upload <Link to="/admin/resources" className="text-primary-600 hover:underline">Resources</Link> (PDFs, notes)</li>
-                        <li>Build <Link to="/admin/flashcards" className="text-primary-600 hover:underline">Flashcard Decks</Link> for each topic</li>
-                    </ol>
+                <div className="bg-white rounded-3xl border border-gray-100 p-8 hover:shadow-lg transition-shadow duration-300">
+                    <h2 className="font-extrabold text-xl text-gray-900 mb-6">Launch Sequence</h2>
+                    <div className="space-y-6">
+                        {[
+                            { title: 'Create Levels', desc: 'Define your main stages (e.g. IGCSE).', link: '/admin/levels' },
+                            { title: 'Add Subjects', desc: 'Assign mathematics, sciences, etc.', link: '/admin/subjects' },
+                            { title: 'Define Topics', desc: 'Break subjects into modules.', link: '/admin/topics' },
+                            { title: 'Populate Content', desc: 'Upload PDFs and create flashcards.', link: '/admin/resources' }
+                        ].map((step, i) => (
+                            <div key={step.title} className="flex gap-4">
+                                <div className="w-8 h-8 rounded-full bg-primary-50 text-primary-600 flex items-center justify-center font-bold text-sm shrink-0 border border-primary-100">{i + 1}</div>
+                                <div>
+                                    <Link to={step.link} className="font-bold text-sm text-gray-900 hover:text-primary-600 transition-colors">{step.title}</Link>
+                                    <p className="text-xs text-gray-500 mt-0.5">{step.desc}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

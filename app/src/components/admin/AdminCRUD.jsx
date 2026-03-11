@@ -11,7 +11,7 @@ import { Pencil, Trash2, Plus, X, Check } from 'lucide-react'
  *   select     - Supabase select string (default '*')
  *   displayCol - Column to show in table (default 'name')
  */
-const AdminCRUD = ({ table, title, fields, select = '*', displayCol = 'name' }) => {
+const AdminCRUD = ({ table, title, fields, select = '*' }) => {
     const [rows, setRows] = useState([])
     const [form, setForm] = useState({})
     const [editId, setEditId] = useState(null)
@@ -70,19 +70,20 @@ const AdminCRUD = ({ table, title, fields, select = '*', displayCol = 'name' }) 
     }
 
     return (
-        <div className="p-8">
+        <div className="p-4 sm:p-8 max-w-7xl mx-auto dark:bg-[#0c1220] min-h-full">
             <div className="flex items-center justify-between mb-8">
-                <h1 className="text-2xl font-extrabold text-gray-900">{title}</h1>
-                <button onClick={openNew} className="flex items-center gap-2 px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold text-sm transition-colors">
-                    <Plus size={17} /> Add {title.replace(/s$/, '')}
+                <h1 className="text-3xl font-black text-gray-900 tracking-tight">{title}</h1>
+                <button onClick={openNew} className="flex items-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 hover:shadow-lg hover:shadow-primary-600/20 text-white rounded-xl font-bold text-sm transition-all transform hover:-translate-y-0.5">
+                    <Plus size={18} /> Add {title.replace(/s$/, '')}
                 </button>
             </div>
 
             {showForm && (
-                <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-8">
-                    <div className="flex items-center justify-between mb-5">
-                        <h2 className="font-bold text-gray-900">{editId ? 'Edit' : 'New'} {title.replace(/s$/, '')}</h2>
-                        <button onClick={() => setShowForm(false)} className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"><X size={18} /></button>
+                <div className="bg-white rounded-3xl border border-gray-100 p-8 mb-10 shadow-xl shadow-gray-200/40 transition-all animate-in slide-in-from-top-4 relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-400 to-primary-600" />
+                    <div className="flex items-center justify-between mb-8">
+                        <h2 className="text-xl font-extrabold text-gray-900">{editId ? 'Edit' : 'New'} {title.replace(/s$/, '')}</h2>
+                        <button onClick={() => setShowForm(false)} className="p-2 text-gray-400 hover:text-gray-900 rounded-xl hover:bg-gray-100 transition-colors"><X size={20} /></button>
                     </div>
                     <form onSubmit={handleSubmit} className="grid sm:grid-cols-2 gap-5">
                         {fields.map((field) => (
@@ -127,11 +128,13 @@ const AdminCRUD = ({ table, title, fields, select = '*', displayCol = 'name' }) 
                                 {field.help && <p className="text-xs text-gray-400 mt-1">{field.help}</p>}
                             </div>
                         ))}
-                        <div className="sm:col-span-2 flex gap-3">
-                            <button type="submit" disabled={saving} className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold transition-colors disabled:opacity-60">
-                                {saving ? 'Saving…' : editId ? 'Update' : 'Create'}
+                        <div className="sm:col-span-2 flex gap-3 mt-4 pt-6 border-t border-gray-100">
+                            <button type="submit" disabled={saving} className="px-8 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold transition-all hover:shadow-lg hover:shadow-primary-600/20 disabled:opacity-60 flex items-center justify-center min-w-[120px]">
+                                {saving ? (
+                                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                ) : editId ? 'Save Changes' : 'Create Record'}
                             </button>
-                            <button type="button" onClick={() => setShowForm(false)} className="px-6 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-sm font-bold transition-colors">
+                            <button type="button" onClick={() => setShowForm(false)} className="px-6 py-3 bg-white border border-gray-200 hover:border-gray-300 hover:bg-gray-50 text-gray-700 rounded-xl text-sm font-bold transition-all shadow-sm">
                                 Cancel
                             </button>
                         </div>
@@ -139,14 +142,15 @@ const AdminCRUD = ({ table, title, fields, select = '*', displayCol = 'name' }) 
                 </div>
             )}
 
-            <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                <table className="w-full admin-table">
-                    <thead>
-                        <tr>
-                            {fields.slice(0, 4).map(f => <th key={f.key}>{f.label}</th>)}
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
+            <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
+                <div className="overflow-x-auto">
+                    <table className="w-full admin-table min-w-[700px]">
+                        <thead>
+                            <tr>
+                                {fields.slice(0, 4).map(f => <th key={f.key} className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider py-4">{f.label}</th>)}
+                                <th className="bg-gray-50 text-xs font-bold text-gray-500 uppercase tracking-wider py-4 text-right pr-6">Actions</th>
+                            </tr>
+                        </thead>
                     <tbody>
                         {loading ? (
                             <tr><td colSpan={5} className="text-center py-10 text-gray-400">Loading…</td></tr>
@@ -157,20 +161,20 @@ const AdminCRUD = ({ table, title, fields, select = '*', displayCol = 'name' }) 
                                 {fields.slice(0, 4).map(f => (
                                     <td key={f.key} className="text-sm text-gray-700">
                                         {f.type === 'checkbox'
-                                            ? (row[f.key] ? <span className="text-green-600 font-semibold text-xs">Yes</span> : <span className="text-gray-400 text-xs">No</span>)
+                                            ? (row[f.key] ? <span className="inline-flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 rounded-md font-bold text-[10px] uppercase tracking-wider border border-green-200"><Check size={12}/> Yes</span> : <span className="inline-flex items-center px-2 py-1 bg-gray-50 text-gray-500 rounded-md font-bold text-[10px] uppercase tracking-wider border border-gray-200">No</span>)
                                             : f.type === 'select'
                                                 ? (f.options?.find(o => o.value === row[f.key])?.label ?? row[f.key])
                                                 : (String(row[f.key] ?? '—').slice(0, 60))
                                         }
                                     </td>
                                 ))}
-                                <td>
-                                    <div className="flex items-center gap-2">
-                                        <button onClick={() => startEdit(row)} className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors" title="Edit">
-                                            <Pencil size={15} />
+                                <td className="py-4 pr-6">
+                                    <div className="flex items-center justify-end gap-2">
+                                        <button onClick={() => startEdit(row)} className="p-2 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all" title="Edit">
+                                            <Pencil size={18} />
                                         </button>
-                                        <button onClick={() => handleDelete(row.id)} className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete">
-                                            <Trash2 size={15} />
+                                        <button onClick={() => handleDelete(row.id)} className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all" title="Delete">
+                                            <Trash2 size={18} />
                                         </button>
                                     </div>
                                 </td>
@@ -178,6 +182,7 @@ const AdminCRUD = ({ table, title, fields, select = '*', displayCol = 'name' }) 
                         ))}
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
     )

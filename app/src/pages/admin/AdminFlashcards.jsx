@@ -71,13 +71,13 @@ const AdminFlashcards = () => {
     }
 
     return (
-        <div className="p-8">
-            <h1 className="text-2xl font-extrabold text-gray-900 mb-8">Flashcards</h1>
-            <div className="grid lg:grid-cols-3 gap-6">
+        <div className="p-4 sm:p-8 max-w-7xl mx-auto dark:bg-[#0c1220] min-h-full">
+            <h1 className="text-3xl font-black text-gray-900 tracking-tight mb-8">Flashcards</h1>
+            <div className="grid lg:grid-cols-3 gap-6 lg:gap-8">
 
                 {/* Deck list */}
-                <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                    <div className="p-5 border-b border-gray-100"><h2 className="font-bold text-gray-900">Decks</h2></div>
+                <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm flex flex-col h-[600px]">
+                    <div className="p-5 border-b border-gray-100 shrink-0 bg-gray-50/50"><h2 className="font-extrabold text-gray-900">Decks</h2></div>
                     <div className="overflow-y-auto max-h-[400px]">
                         {decks.map(d => (
                             <div key={d.id} onClick={() => selectDeck(d)} className={`flex items-center gap-3 px-4 py-3 border-b border-gray-50 cursor-pointer group transition-colors ${selectedDeck?.id === d.id ? 'bg-primary-50' : 'hover:bg-gray-50'}`}>
@@ -93,53 +93,55 @@ const AdminFlashcards = () => {
                         ))}
                     </div>
                     {/* New deck form */}
-                    <form onSubmit={addDeck} className="p-4 border-t border-gray-100 space-y-3">
-                        <p className="text-xs font-bold text-gray-500 uppercase">New Deck</p>
+                    <form onSubmit={addDeck} className="p-5 border-t border-gray-100 space-y-4 shrink-0 bg-gray-50/30">
+                        <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">New Deck</p>
                         <select required value={deckForm.subject_id} onChange={e => setDeckForm(f => ({ ...f, subject_id: e.target.value, topic_id: '' }))}
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-400 bg-white">
+                            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 bg-white shadow-sm">
                             <option value="">Select subject…</option>
                             {subjects.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                         </select>
                         {topics.length > 0 && (
                             <select value={deckForm.topic_id} onChange={e => setDeckForm(f => ({ ...f, topic_id: e.target.value }))}
-                                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-400 bg-white">
+                                className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 bg-white shadow-sm">
                                 <option value="">No topic</option>
                                 {topics.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}
                             </select>
                         )}
                         <input required value={deckForm.title} onChange={e => setDeckForm(f => ({ ...f, title: e.target.value }))} placeholder="Deck title"
-                            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-primary-400" />
-                        <button type="submit" disabled={savingDeck} className="w-full py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-xs font-bold transition-colors disabled:opacity-60">
+                            className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 shadow-sm" />
+                        <button type="submit" disabled={savingDeck} className="w-full py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl text-sm font-bold transition-all hover:shadow-lg disabled:opacity-60">
                             {savingDeck ? 'Creating…' : '+ Create Deck'}
                         </button>
                     </form>
                 </div>
 
                 {/* Cards column */}
-                <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <div className="lg:col-span-2 bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm flex flex-col h-[600px]">
                     {!selectedDeck ? (
-                        <div className="flex flex-col items-center justify-center h-full py-20 text-gray-400">
-                            <BookMarked size={40} className="mb-3 opacity-20" />
-                            <p>Select a deck to manage its cards</p>
+                        <div className="flex flex-col items-center justify-center h-full py-20 text-gray-400 bg-gray-50/30">
+                            <div className="w-20 h-20 rounded-full bg-gray-100 flex items-center justify-center mb-4">
+                                <BookMarked size={36} className="opacity-40" />
+                            </div>
+                            <p className="font-medium">Select a deck to manage its cards</p>
                         </div>
                     ) : (
                         <>
-                            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
+                            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-gray-50/50 shrink-0">
                                 <div>
-                                    <h2 className="font-bold text-gray-900">{selectedDeck.title}</h2>
-                                    <p className="text-xs text-gray-400 mt-0.5">{cards.length} cards</p>
+                                    <h2 className="font-extrabold text-xl text-gray-900">{selectedDeck.title}</h2>
+                                    <p className="text-sm font-medium text-primary-600 mt-1">{cards.length} cards in deck</p>
                                 </div>
                             </div>
 
                             {/* Add card form */}
-                            <form onSubmit={addCard} className="p-5 border-b border-gray-100 space-y-3">
-                                <p className="text-xs font-bold text-gray-500 uppercase">Add Card</p>
+                            <form onSubmit={addCard} className="p-6 border-b border-gray-100 space-y-4 shrink-0 bg-white">
+                                <p className="text-xs font-bold text-gray-500 uppercase tracking-wider">Add New Card</p>
                                 <textarea required value={cardForm.front} onChange={e => setCardForm(f => ({ ...f, front: e.target.value }))} placeholder="Front (question)" rows={2}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none" />
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none shadow-sm" />
                                 <textarea required value={cardForm.back} onChange={e => setCardForm(f => ({ ...f, back: e.target.value }))} placeholder="Back (answer)" rows={2}
-                                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none" />
-                                <button type="submit" disabled={savingCard} className="px-5 py-2 bg-primary-600 hover:bg-primary-700 text-white rounded-lg text-sm font-bold transition-colors disabled:opacity-60">
-                                    {savingCard ? 'Adding…' : <span className="flex items-center gap-1.5"><Plus size={15} /> Add Card</span>}
+                                    className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none shadow-sm" />
+                                <button type="submit" disabled={savingCard} className="px-6 py-2.5 bg-gray-900 hover:bg-black text-white rounded-xl text-sm font-bold transition-all shadow-md disabled:opacity-60 flex items-center gap-2 w-fit">
+                                    {savingCard ? 'Adding…' : <><Plus size={16} /> Add Card</>}
                                 </button>
                             </form>
 
