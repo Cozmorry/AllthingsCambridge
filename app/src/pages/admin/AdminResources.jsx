@@ -5,18 +5,30 @@ import { Upload, Link as LinkIcon, FileText, Trash2 } from 'lucide-react'
 const RESOURCE_TYPES = ['note', 'past_paper', 'topical_question']
 
 const AdminResources = () => {
+    const [levels, setLevels] = useState([])
     const [subjects, setSubjects] = useState([])
+    const [filteredSubjects, setFilteredSubjects] = useState([])
     const [topics, setTopics] = useState([])
     const [resources, setResources] = useState([])
-    const [form, setForm] = useState({ subject_id: '', topic_id: '', type: 'note', title: '', file_url: '', is_premium: false })
+    const [form, setForm] = useState({ level_id: '', subject_id: '', topic_id: '', type: 'note', title: '', file_url: '', is_premium: false, year: '' })
     const [file, setFile] = useState(null)
     const [uploading, setUploading] = useState(false)
     const [saving, setSaving] = useState(false)
 
     useEffect(() => {
-        supabase.from('subjects').select('id,name').order('name').then(({ data }) => setSubjects(data ?? []))
+        supabase.from('levels').select('id,name').order('name').then(({ data }) => setLevels(data ?? []))
+        supabase.from('subjects').select('id,name,level_id').order('name').then(({ data }) => setSubjects(data ?? []))
         supabase.from('resources').select('*, subjects(name), topics(name)').order('created_at', { ascending: false }).then(({ data }) => setResources(data ?? []))
     }, [])
+
+    // Filter subjects when level changes
+    useEffect(() => {
+        if (!form.level_id) {
+            setFilteredSubjects(subjects)
+        } else {
+            setFilteredSubjects(subjects.filter(s => s.level_id === form.level_id))
+        }
+    }, [form.level_id, subjects])
 
     useEffect(() => {
         if (!form.subject_id) return setTopics([])
@@ -42,10 +54,11 @@ const AdminResources = () => {
             fileUrl = await handleUpload()
             setUploading(false)
         }
-        await supabase.from('resources').insert({ ...form, file_url: fileUrl, topic_id: form.topic_id || null })
+        const { level_id, ...insertData } = form
+        await supabase.from('resources').insert({ ...insertData, file_url: fileUrl, topic_id: form.topic_id || null, year: form.year ? parseInt(form.year) : null })
         const { data } = await supabase.from('resources').select('*, subjects(name), topics(name)').order('created_at', { ascending: false })
         setResources(data ?? [])
-        setForm({ subject_id: '', topic_id: '', type: 'note', title: '', file_url: '', is_premium: false })
+        setForm({ level_id: '', subject_id: '', topic_id: '', type: 'note', title: '', file_url: '', is_premium: false, year: '' })
         setFile(null)
         setSaving(false)
     }
@@ -63,9 +76,11 @@ const AdminResources = () => {
                 <div className="bg-white rounded-3xl border border-gray-100 p-8 shadow-sm flex flex-col h-fit">
                     <h2 className="text-xl font-extrabold text-gray-900 mb-6">Upload Resource</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
-                        <Select label="Subject" value={form.subject_id} onChange={v => setForm(f => ({ ...f, subject_id: v, topic_id: '' }))} options={subjects.map(s => ({ value: s.id, label: s.name }))} required />
+                        <Select label="Level" value={form.level_id} onChange={v => setForm(f => ({ ...f, level_id: v, subject_id: '', topic_id: '' }))} options={levels.map(l => ({ value: l.id, label: l.name }))} />
+                        <Select label="Subject" value={form.subject_id} onChange={v => setForm(f => ({ ...f, subject_id: v, topic_id: '' }))} options={filteredSubjects.map(s => ({ value: s.id, label: s.name }))} required />
                         {topics.length > 0 && <Select label="Topic (optional)" value={form.topic_id} onChange={v => setForm(f => ({ ...f, topic_id: v }))} options={[{ value: '', label: '— No topic —' }, ...topics.map(t => ({ value: t.id, label: t.name }))]} />}
                         <Select label="Type" value={form.type} onChange={v => setForm(f => ({ ...f, type: v }))} options={RESOURCE_TYPES.map(t => ({ value: t, label: t.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()) }))} />
+                        <Select label="Year" value={form.year} onChange={v => setForm(f => ({ ...f, year: v }))} options={Array.from({ length: 15 }, (_, i) => { const y = new Date().getFullYear() - i; return { value: String(y), label: String(y) } })} />
                         <Field label="Title" value={form.title} onChange={v => setForm(f => ({ ...f, title: v }))} required />
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 mb-1.5">Upload PDF</label>
@@ -103,7 +118,7 @@ const AdminResources = () => {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-bold text-gray-900 truncate">{r.title}</p>
-                                    <p className="text-xs font-medium text-gray-500 mt-0.5">{r.subjects?.name} <span className="text-gray-300 mx-1">•</span> <span className="uppercase tracking-wider text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">{r.type.replace('_',' ')}</span></p>
+                                    <p className="text-xs font-medium text-gray-500 mt-0.5">{r.subjects?.name} <span className="text-gray-300 mx-1">•</span> <span className="uppercase tracking-wider text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">{r.type.replace('_',' ')}</span>{r.year && <><span className="text-gray-300 mx-1">•</span><span className="text-[10px] bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded font-bold">{r.year}</span></>}</p>
                                 </div>
                                 <button onClick={() => handleDelete(r.id)} className="opacity-0 group-hover:opacity-100 p-2 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all">
                                     <Trash2 size={16} />

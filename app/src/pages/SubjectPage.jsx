@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { Lock, FileText, BookOpen, HelpCircle, BookMarked } from 'lucide-react'
+import { Lock, FileText, BookOpen, HelpCircle, BookMarked, Calendar } from 'lucide-react'
 
 const tabs = [
     { key: 'notes', label: 'Notes', icon: FileText },
@@ -24,6 +24,7 @@ const SubjectPage = () => {
     const [resources, setResources] = useState([])
     const [decks, setDecks] = useState([])
     const [loading, setLoading] = useState(true)
+    const [selectedYear, setSelectedYear] = useState('all')
 
     // Update URL when active tab changes manually 
     useEffect(() => {
@@ -118,13 +119,39 @@ const SubjectPage = () => {
                 ))}
             </div>
 
+            {/* Year Filter */}
+            {activeTab !== 'flashcards' && (() => {
+                const years = [...new Set(resources.map(r => r.year).filter(Boolean))].sort((a, b) => b - a)
+                if (years.length === 0) return null
+                return (
+                    <div className="flex items-center gap-2 mb-6 flex-wrap">
+                        <Calendar size={14} className="text-gray-400" />
+                        <button
+                            onClick={() => setSelectedYear('all')}
+                            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedYear === 'all' ? 'bg-primary-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                        >
+                            All Years
+                        </button>
+                        {years.map(y => (
+                            <button
+                                key={y}
+                                onClick={() => setSelectedYear(y)}
+                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${selectedYear === y ? 'bg-primary-600 text-white shadow-sm' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`}
+                            >
+                                {y}
+                            </button>
+                        ))}
+                    </div>
+                )
+            })()}
+
             {/* Content */}
             {isLocked ? (
                 <PremiumGate />
             ) : activeTab === 'flashcards' ? (
                 <FlashcardDecks decks={decks} levelSlug={levelSlug} subjectSlug={subjectSlug} />
             ) : (
-                <ResourceList resources={resources} />
+                <ResourceList resources={selectedYear === 'all' ? resources : resources.filter(r => r.year === selectedYear)} />
             )}
         </div>
     )
@@ -147,7 +174,10 @@ const ResourceList = ({ resources }) => {
                     </div>
                     <div className="flex-1 min-w-0">
                         <p className="font-semibold text-gray-900 text-sm group-hover:text-primary-600 transition-colors truncate">{r.title}</p>
-                        {r.topic_id && <p className="text-xs text-gray-400 mt-0.5">Topic resource</p>}
+                        <div className="flex items-center gap-2 mt-0.5">
+                            {r.year && <span className="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">{r.year}</span>}
+                            {r.topic_id && <p className="text-xs text-gray-400">Topic resource</p>}
+                        </div>
                     </div>
                     <span className="text-xs text-gray-400 hidden sm:block">{r.file_url ? 'PDF' : 'View'}</span>
                 </a>

@@ -17,5 +17,17 @@ if (!isConfigured) {
     console.warn('⚠️  Supabase not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file.')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// No-op lock to bypass Edge's broken navigator.locks implementation
+const noopLock = async (name, acquireTimeout, fn) => {
+    return await fn()
+}
+
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+        lock: noopLock,
+        persistSession: true,
+        autoRefreshToken: true,
+    }
+})
 export { isConfigured as supabaseConfigured }
+

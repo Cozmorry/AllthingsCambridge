@@ -5,7 +5,7 @@ import { useAuth } from '../contexts/AuthContext'
 import {
     ChevronLeft, ChevronRight, RotateCcw,
     Settings, Maximize2, Check, X, BookMarked,
-    ArrowRight, ChevronDown, ChevronUp, Menu
+    ArrowRight, ChevronDown, ChevronUp, Menu, Trophy, RefreshCw
 } from 'lucide-react'
 
 const FlashcardStudyPage = () => {
@@ -17,6 +17,7 @@ const FlashcardStudyPage = () => {
     const [index, setIndex] = useState(0)
     const [flipped, setFlipped] = useState(false)
     const [loading, setLoading] = useState(true)
+    const [sidebarOpen, setSidebarOpen] = useState(true)
 
     const [allTopics, setAllTopics] = useState([])
     const [allDecks, setAllDecks] = useState([])
@@ -68,12 +69,19 @@ const FlashcardStudyPage = () => {
             { onConflict: 'user_id,flashcard_id' }
         )
     }, [user])
+    const [completed, setCompleted] = useState(false)
 
     const advance = (cardId, status) => {
         const updated = { ...progress, [cardId]: status }
         setProgress(updated)
         saveProgress(cardId, status)
-        goNext()
+        // Check if this was the last card
+        if (index === cards.length - 1) {
+            setFlipped(false)
+            setTimeout(() => setCompleted(true), 300)
+        } else {
+            goNext()
+        }
     }
 
     const goNext = () => {
@@ -84,7 +92,19 @@ const FlashcardStudyPage = () => {
         setFlipped(false)
         setTimeout(() => setIndex(i => Math.max(i - 1, 0)), 150)
     }
-    const restart = () => { setIndex(0); setFlipped(false) }
+    const restart = () => { setIndex(0); setFlipped(false); setCompleted(false); setProgress({}) }
+    const restartMissed = () => {
+        const missedCards = cards.filter(c => progress[c.id] === 'learning')
+        if (missedCards.length > 0) {
+            // Keep only missed cards, reset their progress
+            const missedProgress = {}
+            missedCards.forEach(c => { missedProgress[c.id] = 'learning' })
+            setProgress(missedProgress)
+            setIndex(0)
+            setFlipped(false)
+            setCompleted(false)
+        }
+    }
 
     if (loading) return <PageLoader />
     if (!deck || cards.length === 0) return (
@@ -102,11 +122,11 @@ const FlashcardStudyPage = () => {
     return (
         <div className="flex flex-col lg:flex-row h-full overflow-hidden w-full">
             {/* Secondary Navbar (Topics & Decks Accordion) */}
-            <div className="hidden lg:flex w-[320px] bg-white border-r border-[#e5e7eb] flex-col shrink-0 overflow-y-auto z-10">
+            <div className={`hidden lg:flex bg-white border-r border-[#e5e7eb] flex-col shrink-0 overflow-y-auto z-10 transition-all duration-300 ${sidebarOpen ? 'w-[320px]' : 'w-0 border-r-0 overflow-hidden'}`}>
                 {/* Header */}
-                <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10 shrink-0">
+                <div className="p-6 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10 shrink-0 min-w-[320px]">
                     <h2 className="text-xl font-bold text-gray-900">Flashcards</h2>
-                    <button className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full transition-colors"><Menu size={18} /></button>
+                    <button onClick={() => setSidebarOpen(false)} className="p-2 text-blue-600 bg-blue-50 hover:bg-blue-100 rounded-full transition-colors"><Menu size={18} /></button>
                 </div>
 
                 <div className="p-5 flex-1">
@@ -162,9 +182,34 @@ const FlashcardStudyPage = () => {
             </div>
 
             {/* Main Flashcard Container */}
-            <div className="flex-1 flex flex-col h-full bg-[#f3f4f9] overflow-hidden">
+            <div className="flex-1 flex flex-col h-full bg-[#f3f4f9] overflow-hidden relative">
+                {/* Sidebar toggle button when collapsed */}
+                {!sidebarOpen && (
+                    <button
+                        onClick={() => setSidebarOpen(true)}
+                        className="hidden lg:flex absolute top-4 left-4 z-20 p-2.5 bg-white border border-gray-200 rounded-xl text-gray-500 hover:text-blue-600 hover:border-blue-200 hover:bg-blue-50 shadow-sm transition-all"
+                        title="Show sidebar"
+                    >
+                        <Menu size={20} />
+                    </button>
+                )}
                 {/* Top Area (scrollable) */}
                 <div className="flex-1 overflow-y-auto px-6 md:px-12 py-8 flex flex-col items-center">
+                    {completed ? (
+                        <CompletionScreen
+                            deck={deck}
+                            cards={cards}
+                            progress={progress}
+                            knowCount={knowCount}
+                            learningCount={learningCount}
+                            levelSlug={levelSlug}
+                            subjectSlug={subjectSlug}
+                            onRestart={restart}
+                            onRestartMissed={restartMissed}
+                            allDecks={allDecks}
+                            allTopics={allTopics}
+                        />
+                    ) : (
                     <div className="w-full max-w-4xl flex flex-col gap-6">
                         {/* Breadcrumbs & Badge */}
                         <div className="flex items-center justify-between text-sm text-gray-500 flex-wrap gap-4">
@@ -250,7 +295,7 @@ const FlashcardStudyPage = () => {
                                             </div>
                                         </div>
                                         <div className="flex-1 flex px-12 py-10 items-center justify-center text-center">
-                                            <p className="text-3xl text-gray-900 font-medium leading-[1.4] tracking-tight">{card.front}</p>
+                                            <p className="text-3xl text-gray-900 font-medium leading-[1.4] tracking-tight whitespace-pre-line">{card.front}</p>
                                         </div>
                                     </div>
 
@@ -269,7 +314,7 @@ const FlashcardStudyPage = () => {
                                             </div>
                                         </div>
                                         <div className="flex-1 flex px-12 py-10 items-center justify-center text-center">
-                                            <p className="text-2xl text-gray-700 leading-relaxed font-medium">{card.back}</p>
+                                            <p className="text-2xl text-gray-700 leading-relaxed font-medium whitespace-pre-line">{card.back}</p>
                                         </div>
                                     </div>
                                 </div>
@@ -316,8 +361,130 @@ const FlashcardStudyPage = () => {
                         </div>
 
                     </div>
+                    )}
                 </div>
             </div>
+        </div>
+    )
+}
+
+const CompletionScreen = ({ deck, cards, progress, knowCount, learningCount, levelSlug, subjectSlug, onRestart, onRestartMissed, allDecks }) => {
+    const total = cards.length
+    const score = total > 0 ? Math.round((knowCount / total) * 100) : 0
+    const circumference = 2 * Math.PI * 54
+    const strokeDashoffset = circumference - (score / 100) * circumference
+
+    // Find next deck in the same subject
+    const currentIdx = allDecks.findIndex(d => d.id === deck.id)
+    const nextDeck = currentIdx >= 0 && currentIdx < allDecks.length - 1 ? allDecks[currentIdx + 1] : null
+
+    const getMessage = () => {
+        if (score === 100) return { emoji: '🏆', title: 'Perfect Score!', sub: 'You nailed every single card. Amazing work!' }
+        if (score >= 80) return { emoji: '🔥', title: 'Great Job!', sub: 'You\'re almost there. Just a few more to master.' }
+        if (score >= 50) return { emoji: '💪', title: 'Good Progress!', sub: 'Keep reviewing and you\'ll master these in no time.' }
+        return { emoji: '📚', title: 'Keep Going!', sub: 'Practice makes perfect. Try reviewing the missed cards.' }
+    }
+    const msg = getMessage()
+
+    return (
+        <div className="w-full max-w-2xl mx-auto flex flex-col items-center gap-8 py-8 animate-in fade-in duration-500">
+            {/* Confetti dots */}
+            <div className="relative w-full h-0">
+                {[...Array(20)].map((_, i) => (
+                    <div
+                        key={i}
+                        className="absolute w-2 h-2 rounded-full animate-bounce"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${-20 - Math.random() * 60}px`,
+                            backgroundColor: ['#11b76b', '#f25e43', '#2d59ff', '#fbbf24', '#a855f7'][i % 5],
+                            animationDelay: `${Math.random() * 2}s`,
+                            animationDuration: `${1.5 + Math.random() * 1.5}s`,
+                            opacity: 0.7,
+                        }}
+                    />
+                ))}
+            </div>
+
+            {/* Emoji & Title */}
+            <div className="text-center">
+                <div className="text-6xl mb-4">{msg.emoji}</div>
+                <h2 className="text-3xl font-black text-gray-900 tracking-tight">{msg.title}</h2>
+                <p className="text-gray-500 mt-2 text-lg font-medium">{msg.sub}</p>
+            </div>
+
+            {/* Score Ring */}
+            <div className="relative w-40 h-40">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="54" fill="none" stroke="#e5e7eb" strokeWidth="8" />
+                    <circle
+                        cx="60" cy="60" r="54" fill="none"
+                        stroke={score >= 80 ? '#11b76b' : score >= 50 ? '#fbbf24' : '#f25e43'}
+                        strokeWidth="8"
+                        strokeLinecap="round"
+                        strokeDasharray={circumference}
+                        strokeDashoffset={strokeDashoffset}
+                        className="transition-all duration-1000 ease-out"
+                    />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <span className="text-4xl font-black text-gray-900">{score}%</span>
+                    <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Score</span>
+                </div>
+            </div>
+
+            {/* Stats Cards */}
+            <div className="grid grid-cols-3 gap-4 w-full max-w-md">
+                <div className="bg-white rounded-2xl border border-gray-100 p-5 text-center shadow-sm">
+                    <p className="text-3xl font-black text-gray-900">{total}</p>
+                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mt-1">Total</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-green-100 p-5 text-center shadow-sm">
+                    <p className="text-3xl font-black text-[#11b76b]">{knowCount}</p>
+                    <p className="text-xs font-bold text-green-400 uppercase tracking-wider mt-1">Known</p>
+                </div>
+                <div className="bg-white rounded-2xl border border-red-100 p-5 text-center shadow-sm">
+                    <p className="text-3xl font-black text-[#f25e43]">{learningCount}</p>
+                    <p className="text-xs font-bold text-red-300 uppercase tracking-wider mt-1">Missed</p>
+                </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full max-w-md">
+                {learningCount > 0 && (
+                    <button
+                        onClick={onRestartMissed}
+                        className="flex-1 w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-[#f25e43] hover:bg-red-600 text-white rounded-xl font-bold text-sm transition-all shadow-md hover:shadow-lg"
+                    >
+                        <RefreshCw size={18} />
+                        Review {learningCount} Missed
+                    </button>
+                )}
+                <button
+                    onClick={onRestart}
+                    className="flex-1 w-full flex items-center justify-center gap-2 px-6 py-3.5 bg-white border border-gray-200 text-gray-700 rounded-xl font-bold text-sm hover:bg-gray-50 transition-all shadow-sm"
+                >
+                    <RotateCcw size={18} />
+                    Restart All
+                </button>
+            </div>
+
+            {nextDeck && (
+                <Link
+                    to={`/levels/${levelSlug}/${subjectSlug}/flashcards/${nextDeck.id}`}
+                    className="flex items-center gap-2 text-[#2d59ff] hover:text-blue-700 font-bold text-sm transition-colors group"
+                >
+                    Next Deck: {nextDeck.title}
+                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                </Link>
+            )}
+
+            <Link
+                to={`/levels/${levelSlug}/${subjectSlug}`}
+                className="text-gray-400 hover:text-gray-600 text-sm font-medium transition-colors"
+            >
+                ← Back to {deck.subjects?.name}
+            </Link>
         </div>
     )
 }
@@ -339,3 +506,4 @@ const PageLoader = () => (
 )
 
 export default FlashcardStudyPage
+

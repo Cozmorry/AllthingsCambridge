@@ -43,8 +43,13 @@ function BookOpenIcon(props) {
 
 const MainLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(true)
-    const [dark, setDark] = useState(false)
+    const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
     const [activeCategory, setActiveCategory] = useState(null)
+
+    useEffect(() => {
+        if (dark) localStorage.setItem('theme', 'dark')
+        else localStorage.setItem('theme', 'light')
+    }, [dark])
     const [levels, setLevels] = useState([])
     const [subjects, setSubjects] = useState([])
 
@@ -203,34 +208,30 @@ const MainLayout = () => {
                             </button>
                         </div>
                         <div className="p-4 space-y-6">
-                            {levels.length === 0 && (
-                                <div className="mb-4">
-                                    <p className="text-xs text-gray-400 font-medium px-2 mb-2 text-center bg-gray-50 py-2 rounded-xl border border-dashed border-gray-200">
-                                        Supabase is empty. Showing default levels:
-                                    </p>
+                            {levels.length === 0 ? (
+                                <div className="space-y-3">
+                                    {[1, 2, 3].map(i => (
+                                        <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse"></div>
+                                    ))}
+                                </div>
+                            ) : (
+                                <div className="space-y-2">
+                                    {levels.map(level => (
+                                        <Link
+                                            key={level.id}
+                                            to={`/levels/${level.slug}?tab=${activeCategory}`}
+                                            onClick={() => {
+                                                setActiveCategory(null) // Close sidebar
+                                                if (window.innerWidth < 1024) setSidebarOpen(false) // Handle mobile
+                                            }}
+                                            className="group flex items-center justify-between px-4 py-3 bg-white border border-gray-100 rounded-xl hover:border-[#2d59ff] hover:shadow-sm transition-all text-[#4b5563] hover:text-[#2d59ff]"
+                                        >
+                                            <span className="font-bold text-sm">{level.name}</span>
+                                            <ChevronRight size={16} className="text-gray-300 group-hover:text-[#2d59ff] group-hover:translate-x-0.5 transition-all" />
+                                        </Link>
+                                    ))}
                                 </div>
                             )}
-                            <div className="space-y-2">
-                                {(levels.length > 0 ? levels : [
-                                    { id: 'default-1', name: 'Checkpoint', slug: 'checkpoint' },
-                                    { id: 'default-2', name: 'IGCSE', slug: 'igcse' },
-                                    { id: 'default-3', name: 'O Level', slug: 'o-level' },
-                                    { id: 'default-4', name: 'AS & A Level', slug: 'as-a-level' }
-                                ]).map(level => (
-                                    <Link
-                                        key={level.id}
-                                        to={`/levels/${level.slug}?tab=${activeCategory}`}
-                                        onClick={() => {
-                                            setActiveCategory(null) // Close sidebar
-                                            if (window.innerWidth < 1024) setSidebarOpen(false) // Handle mobile
-                                        }}
-                                        className="group flex items-center justify-between px-4 py-3 bg-white border border-gray-100 rounded-xl hover:border-[#2d59ff] hover:shadow-sm transition-all text-[#4b5563] hover:text-[#2d59ff]"
-                                    >
-                                        <span className="font-bold text-sm">{level.name}</span>
-                                        <ChevronRight size={16} className="text-gray-300 group-hover:text-[#2d59ff] group-hover:translate-x-0.5 transition-all" />
-                                    </Link>
-                                ))}
-                            </div>
                         </div>
                     </div>
                 </>

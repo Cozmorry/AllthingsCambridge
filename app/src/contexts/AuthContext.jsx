@@ -8,42 +8,77 @@ export const AuthProvider = ({ children }) => {
     const [profile, setProfile] = useState(null)
     const [loading, setLoading] = useState(true)
 
-    const fetchProfile = async (userId) => {
-        const { data } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single()
-        setProfile(data)
+    const fetchProfileData = async (userId) => {
+        try {
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', userId)
+                .maybeSingle()
+            if (error) {
+                console.error('Profile fetch error:', error.message)
+                return null
+            }
+            return data || null
+        } catch (err) {
+            console.error('Profile fetch exception:', err)
+            return null
+        }
     }
 
     useEffect(() => {
-        // If Supabase isn't configured yet, immediately unblock the app so pages render.
+        let isMounted = true
+
         if (!supabaseConfigured) {
             setLoading(false)
             return
         }
 
-        // Safety timeout — never get stuck loading forever
-        const timeout = setTimeout(() => setLoading(false), 3000)
+        const initializeSession = async () => {
+            try {
+                const { data: { session } } = await supabase.auth.getSession()
+                if (session?.user) {
+                    const prof = await fetchProfileData(session.user.id)
+                    if (isMounted) {
+                        setUser(session.user)
+                        setProfile(prof)
+                    }
+                } else {
+                    if (isMounted) {
+                        setUser(null)
+                        setProfile(null)
+                    }
+                }
+            } catch (error) {
+                console.error("Session initialize error", error)
+            } finally {
+                if (isMounted) setLoading(false)
+            }
+        }
 
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            clearTimeout(timeout)
-            setUser(session?.user ?? null)
-            if (session?.user) fetchProfile(session.user.id)
-            setLoading(false)
-        }).catch(() => {
-            clearTimeout(timeout)
-            setLoading(false)
+        initializeSession()
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'INITIAL_SESSION') return 
+
+            if (session?.user) {
+                const prof = await fetchProfileData(session.user.id)
+                if (isMounted) {
+                    setUser(session.user)
+                    setProfile(prof)
+                }
+            } else {
+                if (isMounted) {
+                    setUser(null)
+                    setProfile(null)
+                }
+            }
         })
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user ?? null)
-            if (session?.user) fetchProfile(session.user.id)
-            else setProfile(null)
-        })
-
-        return () => { subscription.unsubscribe(); clearTimeout(timeout) }
+        return () => {
+            isMounted = false
+            subscription?.unsubscribe()
+        }
     }, [])
 
     const signUp = async ({ email, password, fullName }) => {
@@ -52,17 +87,39 @@ export const AuthProvider = ({ children }) => {
             password,
             options: { data: { full_name: fullName } },
         })
+        if (data?.session?.user) {
+            const prof = await fetchProfileData(data.session.user.id)
+            setUser(data.session.user)
+            setProfile(prof)
+        }
         return { data, error }
     }
 
     const signIn = async ({ email, password }) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+        if (data?.session?.user) {
+            const prof = await fetchProfileData(data.session.user.id)
+            setUser(data.session.user)
+            setProfile(prof)
+        }
         return { data, error }
     }
 
     const signOut = async () => {
-        await supabase.auth.signOut()
-        setProfile(null)
+        try {
+            await supabase.auth.signOut()
+        } catch (error) {
+            console.error("Sign out error:", error)
+        } finally {
+            setUser(null)
+            setProfile(null)
+            // Hard flush local storage just in case Supabase got stuck
+            for (let key in localStorage) {
+                if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
+                    localStorage.removeItem(key)
+                }
+            }
+        }
     }
 
     const resetPassword = async (email) => {
@@ -81,6 +138,7 @@ export const AuthProvider = ({ children }) => {
     )
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
     const ctx = useContext(AuthContext)
     if (!ctx) throw new Error('useAuth must be used inside AuthProvider')
