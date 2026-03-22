@@ -145,6 +145,36 @@ body {
   }
 }
 
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.page-enter {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(180deg);
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -293,6 +323,16 @@ body {
 .dark [class*="bg-[#f8fafc]"],
 .dark .bg-gray-50 {
   background-color: #0c1220 !important;
+}
+
+.dark [class*="bg-gray-100"],
+.dark .bg-gray-100 {
+  background-color: #1e293b !important;
+}
+
+.dark [class*="bg-gray-200"],
+.dark .bg-gray-200 {
+  background-color: #334155 !important;
 }
 
 .dark [class*="bg-gray-50/"] {

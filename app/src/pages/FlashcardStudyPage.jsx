@@ -95,6 +95,15 @@ const FlashcardStudyPage = () => {
         }
     }
 
+    const toggleFullscreen = () => {
+        if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch((e) => console.log(e))
+        } else {
+            if (document.exitFullscreen) {
+                document.exitFullscreen()
+            }
+        }
+    }
     const goNext = () => {
         setFlipped(false)
         setTimeout(() => setIndex(i => Math.min(i + 1, cards.length - 1)), 150)
@@ -337,8 +346,8 @@ const FlashcardStudyPage = () => {
                         <div className="max-w-[800px] w-full mx-auto flex flex-col md:flex-row items-center justify-between gap-4 mt-2">
                             <div className="flex items-center gap-2">
                                 <ControlBtn onClick={restart} title="Restart"><RotateCcw size={18} /></ControlBtn>
-                                <ControlBtn title="Settings"><Settings size={18} /></ControlBtn>
-                                <ControlBtn title="Fullscreen"><Maximize2 size={18} /></ControlBtn>
+                                <ControlBtn onClick={() => alert("Settings coming soon!")} title="Settings"><Settings size={18} /></ControlBtn>
+                                <ControlBtn onClick={toggleFullscreen} title="Fullscreen"><Maximize2 size={18} /></ControlBtn>
                             </div>
                             <div className="flex items-center gap-3 bg-white border border-gray-200 rounded-full p-2 shadow-sm">
                                 <button

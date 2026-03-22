@@ -180,7 +180,7 @@ const MainLayout = () => {
                             )}
                             {sidebarOpen && (
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-800 truncate">{profile?.full_name ?? 'Student'}</p>
+                                    <p className="text-sm font-medium text-gray-800 truncate dark:text-gray-100">{profile?.full_name ?? 'Student'}</p>
                                     <p className="text-xs text-gray-400 truncate">{user.email}</p>
                                 </div>
                             )}
@@ -203,11 +203,11 @@ const MainLayout = () => {
                         onClick={() => setActiveCategory(null)}
                     />
                     <div className="w-[300px] max-w-[80vw] h-full bg-[#f8fafc] border-r border-[#e5e7eb] flex flex-col shrink-0 overflow-y-auto z-50 lg:z-30 shadow-2xl lg:shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] transition-all animate-in slide-in-from-left-8 fixed left-0 lg:relative lg:left-0">
-                        <div className="p-5 border-b border-[#e5e7eb] flex items-center justify-between sticky top-0 bg-[#f8fafc] z-10 shrink-0">
-                            <h2 className="text-lg font-extrabold text-gray-900 capitalize">
-                                {navSections[0].items.find(i => i.id === activeCategory)?.label || 'Resources'}
+                        <div className="p-5 border-b border-[#e5e7eb] flex items-center justify-between sticky top-0 bg-[#f8fafc] dark:bg-[#1e293b] z-10 shrink-0">
+                            <h2 className="text-lg font-extrabold text-gray-900 dark:text-gray-100 truncate pr-4 capitalize">
+                                {navSections.flatMap(s => s.items).find(i => i.id === activeCategory)?.label || 'Resources'}
                             </h2>
-                            <button onClick={() => setActiveCategory(null)} className="p-1.5 text-gray-400 hover:bg-gray-200 hover:text-gray-800 rounded-lg transition-colors">
+                            <button onClick={() => setActiveCategory(null)} className="p-1.5 text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-800 rounded-lg transition-colors">
                                 <X size={18} />
                             </button>
                         </div>
@@ -255,14 +255,13 @@ const MainLayout = () => {
                             const searchTab = new URLSearchParams(location.search).get('tab')
 
                             const handleBack = () => {
-                                if (pathParts[0] === 'levels' && pathParts.length >= 3) {
-                                    // On a subject page → go back to the level page
-                                    navigate(`/levels/${pathParts[1]}${searchTab ? `?tab=${searchTab}` : ''}`)
-                                } else if (pathParts[0] === 'levels' && pathParts.length === 2) {
-                                    // On a level page → reopen the secondary sidebar with the right category
-                                    const tab = searchTab || 'notes'
-                                    const categoryMap = { notes: 'notes', past_paper: 'past_paper', topical_question: 'topical_question', flashcards: 'flashcards' }
-                                    setActiveCategory(categoryMap[tab] || 'notes')
+                                if (pathParts.includes('flashcards') && pathParts.length >= 5) {
+                                    // Specifically handle jumping back from a flashcard deck to the subject page
+                                    navigate(`/levels/${pathParts[1]}/${pathParts[2]}?tab=flashcards`)
+                                } else if (pathParts.length > 2) {
+                                    // Go back one level (e.g., from subject back to level)
+                                    navigate('/' + pathParts.slice(0, pathParts.length - 1).join('/'))
+                                } else if (pathParts.length === 2) {
                                     navigate('/')
                                 } else {
                                     navigate(-1)
@@ -272,16 +271,16 @@ const MainLayout = () => {
                             return (
                                 <button
                                     onClick={handleBack}
-                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all"
+                                    className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all shrink-0"
                                 >
                                     <ChevronLeft size={16} />
-                                    <span className="hidden sm:inline">Back</span>
+                                    <span className="hidden md:inline">Back</span>
                                 </button>
                             )
                         })()}
                         {isStudyMode && (
-                            <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 bg-primary-50 text-primary-700 rounded-full border border-primary-100">
-                                <BookMarked size={14} /> Study Mode
+                            <span className="hidden md:inline-flex items-center gap-1.5 text-[10px] font-bold px-2 py-1 bg-primary-50 text-primary-700 rounded-full border border-primary-100 dark:bg-primary-900/20 dark:border-primary-800 uppercase tracking-tight">
+                                <BookMarked size={12} /> Study Mode
                             </span>
                         )}
                     </div>
