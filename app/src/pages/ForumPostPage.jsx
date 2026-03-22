@@ -13,8 +13,8 @@ const ForumPostPage = () => {
 
     const load = async () => {
         const [postRes, repliesRes] = await Promise.all([
-            supabase.from('forum_posts').select('*, profiles(full_name)').eq('id', postId).single(),
-            supabase.from('forum_replies').select('*, profiles(full_name)').eq('post_id', postId).order('created_at'),
+            supabase.from('forum_posts').select('*, profiles(full_name, avatar_url)').eq('id', postId).single(),
+            supabase.from('forum_replies').select('*, profiles(full_name, avatar_url)').eq('post_id', postId).order('created_at'),
         ])
         setPost(postRes.data)
         setReplies(repliesRes.data ?? [])
@@ -38,8 +38,20 @@ const ForumPostPage = () => {
 
     return (
         <div className="max-w-3xl mx-auto px-6 py-14">
-            <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-6">
-                <p className="text-xs text-gray-400 mb-3">{post.profiles?.full_name} · {new Date(post.created_at).toLocaleDateString()}</p>
+            <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-6 relative">
+                <div className="flex items-center gap-3 mb-6">
+                    {post.profiles?.avatar_url ? (
+                        <img src={post.profiles.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm" />
+                    ) : (
+                        <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm shrink-0">
+                            {post.profiles?.full_name?.[0] ?? '?'}
+                        </div>
+                    )}
+                    <div>
+                        <p className="font-bold text-gray-900 leading-none mb-1">{post.profiles?.full_name}</p>
+                        <p className="text-xs text-gray-400">{new Date(post.created_at).toLocaleDateString()}</p>
+                    </div>
+                </div>
                 <h1 className="text-2xl font-extrabold text-gray-900 mb-4">{post.title}</h1>
                 <p className="text-gray-700 leading-relaxed">{post.body}</p>
             </div>
@@ -49,9 +61,13 @@ const ForumPostPage = () => {
             <div className="space-y-4 mb-8">
                 {replies.map(r => (
                     <div key={r.id} className="flex gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
-                            {r.profiles?.full_name?.[0] ?? '?'}
-                        </div>
+                        {r.profiles?.avatar_url ? (
+                            <img src={r.profiles.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm mt-0.5" />
+                        ) : (
+                            <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">
+                                {r.profiles?.full_name?.[0] ?? '?'}
+                            </div>
+                        )}
                         <div className="flex-1 bg-white rounded-xl border border-gray-100 px-4 py-3">
                             <p className="text-xs text-gray-400 mb-1">{r.profiles?.full_name}</p>
                             <p className="text-sm text-gray-700">{r.body}</p>

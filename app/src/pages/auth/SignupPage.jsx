@@ -37,7 +37,7 @@ const SignupPage = () => {
     return (
         <>
             <h2 className="text-2xl font-extrabold text-gray-900 mb-1">Create account</h2>
-            <p className="text-sm text-gray-500 mb-7">Start your Cambridge study journey today</p>
+            <p className="text-sm text-gray-500 mb-7">Start your study journey today</p>
 
             {error && <p className="mb-4 px-4 py-3 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm">{error}</p>}
 

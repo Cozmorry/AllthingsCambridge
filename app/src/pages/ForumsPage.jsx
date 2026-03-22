@@ -12,7 +12,7 @@ const ForumsPage = () => {
     const [posting, setPosting] = useState(false)
 
     const load = async () => {
-        const { data } = await supabase.from('forum_posts').select('*, profiles(full_name)').order('created_at', { ascending: false })
+        const { data } = await supabase.from('forum_posts').select('*, profiles(full_name, avatar_url)').order('created_at', { ascending: false })
         setPosts(data ?? [])
         setLoading(false)
     }
@@ -32,7 +32,7 @@ const ForumsPage = () => {
     return (
         <div className="max-w-4xl mx-auto px-6 lg:px-10 py-14">
             <h1 className="text-3xl font-extrabold text-gray-900 mb-2">Community Forums</h1>
-            <p className="text-gray-500 mb-10">Ask questions, share tips, and connect with fellow Cambridge students.</p>
+            <p className="text-gray-500 mb-10">Ask questions, share tips, and connect with fellow students.</p>
 
             {user && (
                 <form onSubmit={handlePost} className="bg-white rounded-2xl border border-gray-100 p-6 mb-8">
@@ -62,9 +62,13 @@ const ForumsPage = () => {
                         <div className="space-y-3">
                             {posts.map(p => (
                                 <Link key={p.id} to={`/forums/${p.id}`} className="flex items-start gap-4 p-5 bg-white rounded-2xl border border-gray-100 hover:shadow-md hover:border-primary-100 transition-all group">
-                                    <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm shrink-0">
-                                        {p.profiles?.full_name?.[0] ?? '?'}
-                                    </div>
+                                    {p.profiles?.avatar_url ? (
+                                        <img src={p.profiles.avatar_url} alt="" className="w-10 h-10 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm" />
+                                    ) : (
+                                        <div className="w-10 h-10 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm shrink-0">
+                                            {p.profiles?.full_name?.[0] ?? '?'}
+                                        </div>
+                                    )}
                                     <div className="flex-1 min-w-0">
                                         <h3 className="font-bold text-gray-900 group-hover:text-primary-700 transition-colors">{p.title}</h3>
                                         <p className="text-sm text-gray-400 mt-0.5 truncate">{p.body}</p>

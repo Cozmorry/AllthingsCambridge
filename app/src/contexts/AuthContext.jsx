@@ -128,11 +128,17 @@ export const AuthProvider = ({ children }) => {
         })
     }
 
+    const refreshProfile = async () => {
+        if (!user) return
+        const prof = await fetchProfileData(user.id)
+        setProfile(prof)
+    }
+
     const isAdmin = profile?.role === 'admin'
     const isSubscribed = profile?.is_subscribed === true
 
     return (
-        <AuthContext.Provider value={{ user, profile, loading, isAdmin, isSubscribed, signUp, signIn, signOut, resetPassword }}>
+        <AuthContext.Provider value={{ user, profile, loading, isAdmin, isSubscribed, signUp, signIn, signOut, resetPassword, refreshProfile }}>
             {children}
         </AuthContext.Provider>
     )

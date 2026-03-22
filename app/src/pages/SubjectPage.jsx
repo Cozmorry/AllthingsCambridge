@@ -2,7 +2,9 @@ import { useEffect, useState } from 'react'
 import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
-import { Lock, FileText, BookOpen, HelpCircle, BookMarked, Calendar } from 'lucide-react'
+import { usePaywall } from '../hooks/usePaywall'
+import PaywallGate from '../components/ui/PaywallGate'
+import { Lock, FileText, BookOpen, HelpCircle, BookMarked, Calendar, Crown, FolderOpen } from 'lucide-react'
 
 const tabs = [
     { key: 'notes', label: 'Notes', icon: FileText },
@@ -25,6 +27,8 @@ const SubjectPage = () => {
     const [decks, setDecks] = useState([])
     const [loading, setLoading] = useState(true)
     const [selectedYear, setSelectedYear] = useState('all')
+
+    const { recordView } = usePaywall()
 
     // Update URL when active tab changes manually 
     useEffect(() => {
@@ -63,14 +67,31 @@ const SubjectPage = () => {
     }, [levelSlug, subjectSlug])
 
     useEffect(() => {
+        if (subject) {
+            recordView(`subject-${subject.id}-${activeTab}`)
+        }
+    }, [subject, activeTab, recordView])
+
+    // Map tab keys to DB resource type values
+    const tabToType = { notes: 'note', past_paper: 'past_paper', topical_question: 'topical_question' }
+
+    useEffect(() => {
         if (!subject) return
+        // Reset year filter when tab changes
+        setSelectedYear('all')
+        // Clear stale resources immediately
+        setResources([])
+        if (activeTab === 'flashcards') return
+        const resourceType = tabToType[activeTab]
+        if (!resourceType) return
         const loadResources = async () => {
-            if (activeTab === 'flashcards') return
-            const { data } = await supabase
+            const { data, error } = await supabase
                 .from('resources')
                 .select('*')
                 .eq('subject_id', subject.id)
-                .eq('type', activeTab === 'notes' ? 'note' : activeTab)
+                .eq('type', resourceType)
+                .order('created_at', { ascending: false })
+            if (error) console.error('Resource load error:', error)
             setResources(data ?? [])
         }
         loadResources()
@@ -99,7 +120,7 @@ const SubjectPage = () => {
                 </div>
                 {subject.is_premium && (
                     <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-secondary-100 text-secondary-800 text-xs font-semibold border border-secondary-200">
-                        👑 Premium Content
+                        <Crown size={14} className="text-secondary-700" /> Premium Content
                     </span>
                 )}
             </div>
@@ -148,10 +169,14 @@ const SubjectPage = () => {
             {/* Content */}
             {isLocked ? (
                 <PremiumGate />
-            ) : activeTab === 'flashcards' ? (
-                <FlashcardDecks decks={decks} levelSlug={levelSlug} subjectSlug={subjectSlug} />
             ) : (
-                <ResourceList resources={selectedYear === 'all' ? resources : resources.filter(r => r.year === selectedYear)} />
+                <PaywallGate>
+                    {activeTab === 'flashcards' ? (
+                        <FlashcardDecks decks={decks} levelSlug={levelSlug} subjectSlug={subjectSlug} />
+                    ) : (
+                        <ResourceList resources={selectedYear === 'all' ? resources : resources.filter(r => r.year === selectedYear)} />
+                    )}
+                </PaywallGate>
             )}
         </div>
     )
@@ -161,27 +186,30 @@ const ResourceList = ({ resources }) => {
     if (resources.length === 0) return <EmptyState />
     return (
         <div className="space-y-3">
-            {resources.map((r) => (
-                <a
-                    key={r.id}
-                    href={r.file_url ?? '#'}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 hover:shadow-md hover:border-primary-200 transition-all group"
-                >
-                    <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
-                        <FileText size={18} />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                        <p className="font-semibold text-gray-900 text-sm group-hover:text-primary-600 transition-colors truncate">{r.title}</p>
-                        <div className="flex items-center gap-2 mt-0.5">
-                            {r.year && <span className="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">{r.year}</span>}
-                            {r.topic_id && <p className="text-xs text-gray-400">Topic resource</p>}
+            {resources.map((r) => {
+                const hasUrl = r.file_url && r.file_url.trim().length > 0
+                const Tag = hasUrl ? 'a' : 'div'
+                const linkProps = hasUrl ? { href: r.file_url, target: '_blank', rel: 'noreferrer' } : {}
+                return (
+                    <Tag
+                        key={r.id}
+                        {...linkProps}
+                        className={`flex items-center gap-4 p-4 bg-white rounded-xl border border-gray-100 transition-all group ${hasUrl ? 'hover:shadow-md hover:border-primary-200 cursor-pointer' : 'opacity-70'}`}
+                    >
+                        <div className="w-10 h-10 rounded-xl bg-primary-50 text-primary-600 flex items-center justify-center shrink-0">
+                            <FileText size={18} />
                         </div>
-                    </div>
-                    <span className="text-xs text-gray-400 hidden sm:block">{r.file_url ? 'PDF' : 'View'}</span>
-                </a>
-            ))}
+                        <div className="flex-1 min-w-0">
+                            <p className={`font-semibold text-gray-900 text-sm truncate ${hasUrl ? 'group-hover:text-primary-600' : ''} transition-colors`}>{r.title}</p>
+                            <div className="flex items-center gap-2 mt-0.5">
+                                {r.year && <span className="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">{r.year}</span>}
+                                {!hasUrl && <span className="text-xs text-gray-400">File not available</span>}
+                            </div>
+                        </div>
+                        <span className="text-xs text-gray-400 hidden sm:block">{hasUrl ? 'Open' : '—'}</span>
+                    </Tag>
+                )
+            })}
         </div>
     )
 }
@@ -211,7 +239,7 @@ const FlashcardDecks = ({ decks, levelSlug, subjectSlug }) => {
 
 const PremiumGate = () => (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-secondary-100 flex items-center justify-center text-3xl mb-5">👑</div>
+        <div className="w-16 h-16 rounded-2xl bg-secondary-100 flex items-center justify-center mb-5"><Crown size={32} className="text-secondary-600" /></div>
         <h3 className="text-xl font-bold text-gray-900 mb-2">Premium Content</h3>
         <p className="text-gray-500 mb-6 max-w-sm">Subscribe to unlock all notes, past papers, and flashcards for every subject.</p>
         <Link to="/pricing" className="px-6 py-3 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-semibold transition-colors">
@@ -222,7 +250,7 @@ const PremiumGate = () => (
 
 const EmptyState = ({ msg = 'No resources available yet.' }) => (
     <div className="flex flex-col items-center justify-center py-24 text-gray-400">
-        <span className="text-5xl mb-4">📂</span>
+        <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4"><FolderOpen size={32} className="opacity-40" /></div>
         <p className="font-medium">{msg}</p>
     </div>
 )

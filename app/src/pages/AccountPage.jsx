@@ -1,12 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
-import { Crown, LogOut, User } from 'lucide-react'
+import { Crown, LogOut, User, Camera, CheckCircle } from 'lucide-react'
 
 const AccountPage = () => {
-    const { user, profile, signOut, isSubscribed } = useAuth()
+    const { user, profile, signOut, isSubscribed, refreshProfile } = useAuth()
     const [payments, setPayments] = useState([])
+    const [uploading, setUploading] = useState(false)
+    const [saved, setSaved] = useState(false)
+    const fileRef = useRef(null)
 
     useEffect(() => {
         if (!user) return
@@ -14,27 +17,107 @@ const AccountPage = () => {
             .then(({ data }) => setPayments(data ?? []))
     }, [user])
 
+    const handleAvatarUpload = async (e) => {
+        const file = e.target.files?.[0]
+        if (!file || !user) return
+
+        setUploading(true)
+        setSaved(false)
+
+        const ext = file.name.split('.').pop()
+        const path = `avatars/${user.id}.${ext}`
+
+        // Upload to Supabase storage (overwrite existing)
+        const { error: uploadError } = await supabase.storage
+            .from('content')
+            .upload(path, file, { upsert: true })
+
+        if (uploadError) {
+            console.error('Upload error:', uploadError)
+            setUploading(false)
+            return
+        }
+
+        // Get public URL
+        const { data: urlData } = supabase.storage.from('content').getPublicUrl(path)
+        const avatarUrl = `${urlData.publicUrl}?t=${Date.now()}` // cache bust
+
+        // Update profile
+        const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ avatar_url: avatarUrl })
+            .eq('id', user.id)
+
+        if (updateError) {
+            console.error('Profile update error:', updateError)
+        } else {
+            await refreshProfile()
+            setSaved(true)
+            setTimeout(() => setSaved(false), 3000)
+        }
+
+        setUploading(false)
+    }
+
+    const avatarUrl = profile?.avatar_url
+    const initial = profile?.full_name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase()
+
     return (
         <div className="max-w-3xl mx-auto px-6 py-14">
             <h1 className="text-3xl font-extrabold text-gray-900 mb-8">My Account</h1>
 
             {/* Profile card */}
-            <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6 flex items-center gap-5">
-                <div className="w-16 h-16 rounded-2xl bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-2xl">
-                    {profile?.full_name?.[0]?.toUpperCase() ?? <User size={24} />}
-                </div>
-                <div>
-                    <p className="text-lg font-bold text-gray-900">{profile?.full_name ?? 'Student'}</p>
-                    <p className="text-sm text-gray-500">{user?.email}</p>
-                    {isSubscribed ? (
-                        <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 bg-secondary-100 text-secondary-800 text-xs font-semibold rounded-full">
-                            <Crown size={11} /> Premium Subscriber
-                        </span>
-                    ) : (
-                        <Link to="/pricing" className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full hover:bg-primary-50 hover:text-primary-700 transition-colors">
-                            Upgrade to Premium →
-                        </Link>
-                    )}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 mb-6">
+                <div className="flex items-center gap-5">
+                    {/* Avatar with upload */}
+                    <div className="relative group">
+                        <input
+                            ref={fileRef}
+                            type="file"
+                            accept="image/*"
+                            onChange={handleAvatarUpload}
+                            className="hidden"
+                        />
+                        <button
+                            onClick={() => fileRef.current?.click()}
+                            disabled={uploading}
+                            className="relative w-20 h-20 rounded-2xl overflow-hidden bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-2xl shrink-0 group cursor-pointer border-2 border-transparent hover:border-primary-300 transition-all"
+                        >
+                            {avatarUrl ? (
+                                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                            ) : (
+                                <span>{initial ?? <User size={28} />}</span>
+                            )}
+                            {/* Hover overlay */}
+                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl">
+                                {uploading ? (
+                                    <div className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                                ) : (
+                                    <Camera size={20} className="text-white" />
+                                )}
+                            </div>
+                        </button>
+                        {saved && (
+                            <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center shadow-md">
+                                <CheckCircle size={14} className="text-white" />
+                            </div>
+                        )}
+                    </div>
+
+                    <div>
+                        <p className="text-lg font-bold text-gray-900">{profile?.full_name ?? 'Student'}</p>
+                        <p className="text-sm text-gray-500">{user?.email}</p>
+                        <p className="text-xs text-gray-400 mt-1">Click photo to change</p>
+                        {isSubscribed ? (
+                            <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 bg-secondary-100 text-secondary-800 text-xs font-semibold rounded-full">
+                                <Crown size={11} /> Premium Subscriber
+                            </span>
+                        ) : (
+                            <Link to="/pricing" className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full hover:bg-primary-50 hover:text-primary-700 transition-colors">
+                                Upgrade to Premium →
+                            </Link>
+                        )}
+                    </div>
                 </div>
             </div>
 
@@ -43,8 +126,8 @@ const AccountPage = () => {
                 <h2 className="font-bold text-gray-900 mb-3">Subscription</h2>
                 {isSubscribed ? (
                     <div>
-                        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-                            ✅ Active — expires {profile?.subscribed_until ? new Date(profile.subscribed_until).toLocaleDateString() : 'N/A'}
+                        <p className="text-sm text-green-700 bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-2">
+                            <CheckCircle size={16} /> Active — expires {profile?.subscribed_until ? new Date(profile.subscribed_until).toLocaleDateString() : 'N/A'}
                         </p>
                     </div>
                 ) : (

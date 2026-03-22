@@ -2,10 +2,13 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { usePaywall } from '../hooks/usePaywall'
+import PaywallGate from '../components/ui/PaywallGate'
 import {
     ChevronLeft, ChevronRight, RotateCcw,
     Settings, Maximize2, Check, X, BookMarked,
-    ArrowRight, ChevronDown, ChevronUp, Menu, Trophy, RefreshCw
+    ArrowRight, ChevronDown, ChevronUp, Menu, Trophy, RefreshCw,
+    Layers, Flame, Zap, BookOpen
 } from 'lucide-react'
 
 const FlashcardStudyPage = () => {
@@ -62,6 +65,14 @@ const FlashcardStudyPage = () => {
         load()
     }, [deckId, user])
 
+    const { recordView } = usePaywall()
+
+    useEffect(() => {
+        if (deck) {
+            recordView(`deck-${deck.id}`)
+        }
+    }, [deck, recordView])
+
     const saveProgress = useCallback(async (cardId, status) => {
         if (!user) return
         await supabase.from('user_flashcard_progress').upsert(
@@ -109,7 +120,7 @@ const FlashcardStudyPage = () => {
     if (loading) return <PageLoader />
     if (!deck || cards.length === 0) return (
         <div className="flex flex-col items-center justify-center py-32 text-gray-400">
-            <span className="text-5xl mb-4">🃏</span>
+            <div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mb-4"><Layers size={32} className="opacity-40" /></div>
             <p className="font-medium">No flashcards in this deck yet.</p>
         </div>
     )
@@ -210,7 +221,8 @@ const FlashcardStudyPage = () => {
                             allTopics={allTopics}
                         />
                     ) : (
-                    <div className="w-full max-w-4xl flex flex-col gap-6">
+                    <PaywallGate>
+                        <div className="w-full max-w-4xl flex flex-col gap-6">
                         {/* Breadcrumbs & Badge */}
                         <div className="flex items-center justify-between text-sm text-gray-500 flex-wrap gap-4">
                             <nav className="flex items-center gap-2">
@@ -361,6 +373,7 @@ const FlashcardStudyPage = () => {
                         </div>
 
                     </div>
+                    </PaywallGate>
                     )}
                 </div>
             </div>
@@ -379,10 +392,10 @@ const CompletionScreen = ({ deck, cards, progress, knowCount, learningCount, lev
     const nextDeck = currentIdx >= 0 && currentIdx < allDecks.length - 1 ? allDecks[currentIdx + 1] : null
 
     const getMessage = () => {
-        if (score === 100) return { emoji: '🏆', title: 'Perfect Score!', sub: 'You nailed every single card. Amazing work!' }
-        if (score >= 80) return { emoji: '🔥', title: 'Great Job!', sub: 'You\'re almost there. Just a few more to master.' }
-        if (score >= 50) return { emoji: '💪', title: 'Good Progress!', sub: 'Keep reviewing and you\'ll master these in no time.' }
-        return { emoji: '📚', title: 'Keep Going!', sub: 'Practice makes perfect. Try reviewing the missed cards.' }
+        if (score === 100) return { icon: <Trophy size={48} className="text-yellow-500" />, title: 'Perfect Score!', sub: 'You nailed every single card. Amazing work!' }
+        if (score >= 80) return { icon: <Flame size={48} className="text-orange-500" />, title: 'Great Job!', sub: 'You\'re almost there. Just a few more to master.' }
+        if (score >= 50) return { icon: <Zap size={48} className="text-blue-500" />, title: 'Good Progress!', sub: 'Keep reviewing and you\'ll master these in no time.' }
+        return { icon: <BookOpen size={48} className="text-gray-400" />, title: 'Keep Going!', sub: 'Practice makes perfect. Try reviewing the missed cards.' }
     }
     const msg = getMessage()
 
@@ -406,9 +419,9 @@ const CompletionScreen = ({ deck, cards, progress, knowCount, learningCount, lev
                 ))}
             </div>
 
-            {/* Emoji & Title */}
+            {/* Icon & Title */}
             <div className="text-center">
-                <div className="text-6xl mb-4">{msg.emoji}</div>
+                <div className="w-20 h-20 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mx-auto mb-4">{msg.icon}</div>
                 <h2 className="text-3xl font-black text-gray-900 tracking-tight">{msg.title}</h2>
                 <p className="text-gray-500 mt-2 text-lg font-medium">{msg.sub}</p>
             </div>

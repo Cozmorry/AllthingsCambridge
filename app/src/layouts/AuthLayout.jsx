@@ -5,7 +5,7 @@ const AuthLayout = () => (
         <div className="w-full max-w-md">
             <div className="text-center mb-8">
                 <Link to="/" className="inline-flex items-center gap-2 font-extrabold text-2xl text-gray-900">
-                    <span className="w-10 h-10 rounded-xl bg-primary-600 text-white flex items-center justify-center font-bold">A</span>
+                    <img src="/icon.png" alt="ATC" className="w-10 h-10 rounded-xl" />
                     AllThingsCambridge
                 </Link>
             </div>

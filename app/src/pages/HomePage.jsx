@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, BookOpen, GraduationCap, Award, Sparkles } from 'lucide-react'
+import { useAuth } from '../contexts/AuthContext'
+import { ArrowRight, BookOpen, GraduationCap, Award, Sparkles, Mouse } from 'lucide-react'
 import { ScrollReveal } from '../hooks/useScrollReveal'
 
 const levels = [
@@ -19,18 +20,18 @@ const colorMap = {
 const stats = [
     { value: '5,000+', label: 'Active Students' },
     { value: '1,200+', label: 'Study Resources' },
-    { value: '4', label: 'Cambridge Levels' },
+    { value: '4', label: 'Study Levels' },
     { value: '20+', label: 'Subjects' },
 ]
 
-const HomePage = () => (
+const HomePage = () => {
+    const { user, isSubscribed } = useAuth()
+
+    return (
     <div>
         {/* ── Hero ── */}
         <section className="relative bg-white border-b border-gray-100 overflow-hidden">
-            <div className="absolute inset-0 pointer-events-none">
-                <div className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-primary-50 opacity-60 blur-3xl" />
-                <div className="absolute -top-16 right-0 w-[400px] h-[400px] rounded-full bg-secondary-50 opacity-50 blur-3xl" />
-            </div>
+
             <div className="max-w-6xl mx-auto px-6 lg:px-10 py-20 md:py-28 relative">
                 <div className="max-w-3xl mx-auto text-center">
                     {/* Badge */}
@@ -40,13 +41,13 @@ const HomePage = () => (
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-400 opacity-75" />
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary-500" />
                             </span>
-                            Trusted by 5,000+ Cambridge students
+                            Trusted by 5,000+ students
                         </div>
                     </ScrollReveal>
 
                     <ScrollReveal animation="fade-up" delay={250}>
                         <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight leading-tight mb-6">
-                            Master Cambridge Exams with{' '}
+                            Master Your Exams with{' '}
                             <span className="relative text-primary-600">
                                 Active Recall
                                 <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
@@ -58,20 +59,40 @@ const HomePage = () => (
 
                     <ScrollReveal animation="fade-up" delay={400}>
                         <p className="text-lg text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-                            Comprehensive notes, past papers, topical questions, and interactive flashcards for the Cambridge curriculum — all in one place.
+                            Comprehensive notes, past papers, topical questions, and interactive flashcards for your curriculum — all in one place.
                         </p>
                     </ScrollReveal>
 
                     <ScrollReveal animation="fade-up" delay={550}>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                            <Link to="/signup" className="px-8 py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-base transition-all shadow-lg shadow-primary-600/25 hover:shadow-primary-600/35 hover:-translate-y-0.5">
-                                Start Learning Free
-                            </Link>
-                            <Link to="/pricing" className="px-8 py-3.5 border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-bold text-base transition-all">
-                                View Pricing
-                            </Link>
+                            {user ? (
+                                <a href="#levels" className="px-8 py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-base transition-all shadow-lg shadow-primary-600/25 hover:shadow-primary-600/35 hover:-translate-y-0.5">
+                                    Browse Subjects
+                                </a>
+                            ) : (
+                                <Link to="/signup" className="px-8 py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-base transition-all shadow-lg shadow-primary-600/25 hover:shadow-primary-600/35 hover:-translate-y-0.5">
+                                    Start Learning Free
+                                </Link>
+                            )}
+
+                            {isSubscribed ? (
+                                <Link to="/account" className="px-8 py-3.5 border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-bold text-base transition-all">
+                                    My Account
+                                </Link>
+                            ) : (
+                                <Link to="/pricing" className="px-8 py-3.5 border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-bold text-base transition-all">
+                                    View Pricing
+                                </Link>
+                            )}
                         </div>
                     </ScrollReveal>
+                </div>
+
+                <div className="mt-16 flex flex-col items-center justify-center opacity-70 cursor-default">
+                    <span className="text-[10px] text-gray-400 font-bold mb-2 uppercase tracking-widest hidden sm:block">Scroll</span>
+                    <div className="w-8 h-12 border-2 border-gray-300 rounded-full flex justify-center pt-2">
+                        <div className="w-1.5 h-3 bg-gray-400 rounded-full animate-scroll-wheel" />
+                    </div>
                 </div>
             </div>
         </section>
@@ -93,11 +114,11 @@ const HomePage = () => (
         </section>
 
         {/* ── Level Cards ── */}
-        <section className="max-w-6xl mx-auto px-6 lg:px-10 py-16">
+        <section id="levels" className="max-w-6xl mx-auto px-6 lg:px-10 py-16 scroll-mt-6">
             <ScrollReveal animation="fade-up">
                 <div className="mb-10">
                     <h2 className="text-2xl font-extrabold text-gray-900">Select Your Level</h2>
-                    <p className="text-gray-500 mt-1">Choose the Cambridge qualification you're studying for</p>
+                    <p className="text-gray-500 mt-1">Choose the qualification you're studying for</p>
                 </div>
             </ScrollReveal>
 
@@ -136,7 +157,7 @@ const HomePage = () => (
                         <div className="p-10 lg:p-14">
                             <ScrollReveal animation="fade-left" delay={200}>
                                 <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white/80 text-sm rounded-full mb-6">
-                                    ✨ New — Interactive Flashcards
+                                    <Sparkles size={14} /> New — Interactive Flashcards
                                 </div>
                             </ScrollReveal>
                             <ScrollReveal animation="fade-left" delay={350}>
@@ -169,7 +190,7 @@ const HomePage = () => (
                                             </p>
                                             <div className="flex gap-3 mt-5 justify-center">
                                                 <div className="h-8 flex-1 rounded-full border-2 border-red-200 bg-red-50 flex items-center justify-center text-xs font-semibold text-red-500">Still learning</div>
-                                                <div className="h-8 flex-1 rounded-full border-2 border-green-200 bg-green-50 flex items-center justify-center text-xs font-semibold text-green-600">Know ✓</div>
+                                                <div className="h-8 flex-1 rounded-full border-2 border-green-200 bg-green-50 flex items-center justify-center text-xs font-semibold text-green-600">Know</div>
                                             </div>
                                         </div>
                                     </div>
@@ -181,6 +202,7 @@ const HomePage = () => (
             </ScrollReveal>
         </section>
     </div>
-)
+    )
+}
 
 export default HomePage

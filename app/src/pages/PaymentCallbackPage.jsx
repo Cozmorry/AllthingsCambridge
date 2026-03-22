@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import { CheckCircle, XCircle } from 'lucide-react'
 
 const PaymentCallbackPage = () => {
     const [searchParams] = useSearchParams()
@@ -50,7 +51,7 @@ const PaymentCallbackPage = () => {
             )}
             {status === 'success' && (
                 <>
-                    <div className="text-6xl mb-5">🎉</div>
+                    <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-5"><CheckCircle size={40} className="text-green-600" /></div>
                     <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Payment Successful!</h2>
                     <p className="text-gray-500 mb-2">Your subscription is now active.</p>
                     <p className="text-sm text-gray-400">Redirecting to your account…</p>
@@ -58,7 +59,7 @@ const PaymentCallbackPage = () => {
             )}
             {status === 'error' && (
                 <>
-                    <div className="text-6xl mb-5">❌</div>
+                    <div className="w-16 h-16 rounded-full bg-red-100 flex items-center justify-center mb-5"><XCircle size={40} className="text-red-600" /></div>
                     <h2 className="text-2xl font-extrabold text-gray-900 mb-2">Something went wrong</h2>
                     <p className="text-gray-500">We couldn't verify your payment. Please contact support.</p>
                 </>

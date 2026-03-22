@@ -84,11 +84,11 @@ const MainLayout = () => {
                 <div className="h-16 flex items-center px-4 border-b border-[#e5e7eb] shrink-0">
                     {sidebarOpen ? (
                         <Link to="/" className="flex items-center gap-2.5 font-extrabold text-lg text-gray-900 truncate" onClick={() => { setActiveCategory(null); if (window.innerWidth < 1024) setSidebarOpen(false); }}>
-                            <span className="w-8 h-8 rounded-lg bg-primary-600 text-white flex items-center justify-center text-sm font-bold shrink-0">A</span>
+                            <img src="/icon.png" alt="ATC" className="w-8 h-8 rounded-lg shrink-0" />
                             AllThingsCambridge
                         </Link>
                     ) : (
-                        <Link to="/" className="mx-auto w-8 h-8 rounded-lg bg-primary-600 text-white flex items-center justify-center text-sm font-bold hidden lg:flex" onClick={() => setActiveCategory(null)}>A</Link>
+                        <Link to="/" className="mx-auto hidden lg:flex" onClick={() => setActiveCategory(null)}><img src="/icon.png" alt="ATC" className="w-8 h-8 rounded-lg" /></Link>
                     )}
                 </div>
 
@@ -171,9 +171,13 @@ const MainLayout = () => {
                 {user && (
                     <div className="border-t border-gray-100 p-3 shrink-0">
                         <div className={`flex items-center ${sidebarOpen ? 'gap-3 px-2' : 'justify-center'}`}>
-                            <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm shrink-0">
-                                {profile?.full_name?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase()}
-                            </div>
+                            {profile?.avatar_url ? (
+                                <img src={profile.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
+                            ) : (
+                                <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-sm shrink-0">
+                                    {profile?.full_name?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase()}
+                                </div>
+                            )}
                             {sidebarOpen && (
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-medium text-gray-800 truncate">{profile?.full_name ?? 'Student'}</p>
@@ -245,9 +249,39 @@ const MainLayout = () => {
                         <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-xl text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition-colors">
                             {sidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
                         </button>
+                        {location.pathname !== '/' && (() => {
+                            // Determine smart back behavior based on current route
+                            const pathParts = location.pathname.split('/').filter(Boolean)
+                            const searchTab = new URLSearchParams(location.search).get('tab')
+
+                            const handleBack = () => {
+                                if (pathParts[0] === 'levels' && pathParts.length >= 3) {
+                                    // On a subject page → go back to the level page
+                                    navigate(`/levels/${pathParts[1]}${searchTab ? `?tab=${searchTab}` : ''}`)
+                                } else if (pathParts[0] === 'levels' && pathParts.length === 2) {
+                                    // On a level page → reopen the secondary sidebar with the right category
+                                    const tab = searchTab || 'notes'
+                                    const categoryMap = { notes: 'notes', past_paper: 'past_paper', topical_question: 'topical_question', flashcards: 'flashcards' }
+                                    setActiveCategory(categoryMap[tab] || 'notes')
+                                    navigate('/')
+                                } else {
+                                    navigate(-1)
+                                }
+                            }
+
+                            return (
+                                <button
+                                    onClick={handleBack}
+                                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all"
+                                >
+                                    <ChevronLeft size={16} />
+                                    <span className="hidden sm:inline">Back</span>
+                                </button>
+                            )
+                        })()}
                         {isStudyMode && (
                             <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 bg-primary-50 text-primary-700 rounded-full border border-primary-100">
-                                📖 Study Mode
+                                <BookMarked size={14} /> Study Mode
                             </span>
                         )}
                     </div>
@@ -263,9 +297,13 @@ const MainLayout = () => {
                             </>
                         ) : (
                             <Link to="/account" className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-50 transition-colors">
-                                <div className="w-7 h-7 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-xs">
-                                    {profile?.full_name?.[0]?.toUpperCase() ?? 'U'}
-                                </div>
+                                {profile?.avatar_url ? (
+                                    <img src={profile.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm" />
+                                ) : (
+                                    <div className="w-7 h-7 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-xs">
+                                        {profile?.full_name?.[0]?.toUpperCase() ?? 'U'}
+                                    </div>
+                                )}
                                 {profile?.is_subscribed && <Crown size={14} className="text-secondary-500" />}
                             </Link>
                         )}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { FileText } from 'lucide-react'
 
 const BlogListPage = () => {
     const [posts, setPosts] = useState([])
@@ -37,6 +38,6 @@ const BlogListPage = () => {
 }
 
 const Spinner = () => <div className="flex justify-center py-20"><div className="w-8 h-8 border-4 border-primary-200 border-t-primary-600 rounded-full animate-spin" /></div>
-const Empty = ({ msg }) => <div className="text-center py-20 text-gray-400"><p className="text-4xl mb-3">📝</p><p>{msg}</p></div>
+const Empty = ({ msg }) => <div className="text-center py-20 text-gray-400"><div className="w-16 h-16 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-3"><FileText size={32} className="opacity-40" /></div><p>{msg}</p></div>
 
 export default BlogListPage

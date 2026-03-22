@@ -6,7 +6,7 @@ const fields = [
     { key: 'name', label: 'Name', type: 'text', required: true },
     { key: 'slug', label: 'Slug', type: 'text', required: true, help: 'e.g. igcse (URL-friendly, no spaces)' },
     { key: 'description', label: 'Description', type: 'text' },
-    { key: 'icon', label: 'Icon (emoji)', type: 'text', placeholder: '🎓' },
+    { key: 'icon', label: 'Icon name', type: 'text', placeholder: 'e.g. book-open' },
     { key: 'order', label: 'Display Order', type: 'number', placeholder: '1' },
 ]
 

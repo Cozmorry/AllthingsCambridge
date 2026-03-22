@@ -1,5 +1,5 @@
 import { useAuth } from '../contexts/AuthContext'
-import { Check } from 'lucide-react'
+import { Check, CheckCircle, Shield } from 'lucide-react'
 
 const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY
 
@@ -7,8 +7,8 @@ const plans = [
     {
         id: 'monthly',
         label: 'Monthly',
-        price: 'GHS 20',
-        priceRaw: 2000, // in pesewas
+        price: '$5',
+        priceRaw: 65000, // 650 KES in cents (approx $5)
         period: '/month',
         features: ['Access all subjects', 'All flashcard decks', 'Past papers & notes', 'Topical questions', 'Community access'],
         popular: false,
@@ -16,10 +16,10 @@ const plans = [
     {
         id: 'annual',
         label: 'Annual',
-        price: 'GHS 180',
-        priceRaw: 18000,
+        price: '$48',
+        priceRaw: 620000, // 6200 KES in cents (approx $48)
         period: '/year',
-        save: 'Save GHS 60',
+        save: 'Save $12',
         features: ['Everything in Monthly', 'Priority support', 'Download resources', 'Early access to new content', 'Study streak tracking'],
         popular: true,
     },
@@ -35,7 +35,7 @@ const PricingPage = () => {
             key: PAYSTACK_KEY,
             email: user.email,
             amount: plan.priceRaw,
-            currency: 'GHS',
+            currency: 'KES', // Defaulting to KES since the account is Kenyan
             ref: `ATC-${Date.now()}-${user.id.slice(0, 8)}`,
             metadata: { user_id: user.id, plan: plan.id },
             callback: (response) => {
@@ -54,12 +54,12 @@ const PricingPage = () => {
             <div className="max-w-4xl mx-auto px-6 lg:px-10 py-16">
                 <div className="text-center mb-12">
                     <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Simple, Transparent Pricing</h1>
-                    <p className="text-gray-500 text-lg max-w-xl mx-auto">Unlock full access to all Cambridge study materials with one affordable subscription.</p>
+                    <p className="text-gray-500 text-lg max-w-xl mx-auto">Unlock full access to all study materials with one affordable subscription.</p>
                 </div>
 
                 {isSubscribed && (
-                    <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded-2xl text-center text-green-800 font-semibold">
-                        ✅ You have an active subscription — enjoy full access!
+                    <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded-2xl text-center text-green-800 font-semibold flex items-center justify-center gap-2">
+                        <CheckCircle size={18} /> You have an active subscription — enjoy full access!
                     </div>
                 )}
 
@@ -103,9 +103,10 @@ const PricingPage = () => {
                     ))}
                 </div>
 
-                <p className="text-center text-sm text-gray-400 mt-8">
+                <div className="flex items-center justify-center gap-2 mt-8 text-sm text-gray-400">
+                    <Shield size={14} />
                     Payments are processed securely by Paystack. Cancel anytime.
-                </p>
+                </div>
             </div>
         </>
     )

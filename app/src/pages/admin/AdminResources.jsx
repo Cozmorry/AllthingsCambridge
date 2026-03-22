@@ -39,8 +39,12 @@ const AdminResources = () => {
         if (!file) return null
         const ext = file.name.split('.').pop()
         const path = `resources/${Date.now()}.${ext}`
-        const { error } = await supabase.storage.from('content').upload(path, file)
-        if (error) return null
+        const { error } = await supabase.storage.from('content').upload(path, file, { upsert: true })
+        if (error) {
+            console.error('Storage upload error:', error)
+            alert(`File upload failed: ${error.message}`)
+            return null
+        }
         const { data } = supabase.storage.from('content').getPublicUrl(path)
         return data.publicUrl
     }
@@ -53,9 +57,20 @@ const AdminResources = () => {
             setUploading(true)
             fileUrl = await handleUpload()
             setUploading(false)
+            if (!fileUrl) {
+                // Upload failed — error already shown by handleUpload
+                setSaving(false)
+                return
+            }
         }
         const { level_id, ...insertData } = form
-        await supabase.from('resources').insert({ ...insertData, file_url: fileUrl, topic_id: form.topic_id || null, year: form.year ? parseInt(form.year) : null })
+        const finalUrl = fileUrl && fileUrl.trim() ? fileUrl.trim() : null
+        if (!finalUrl) {
+            alert('Please select a file to upload or paste a file URL.')
+            setSaving(false)
+            return
+        }
+        await supabase.from('resources').insert({ ...insertData, file_url: finalUrl, topic_id: form.topic_id || null, year: form.year ? parseInt(form.year) : null })
         const { data } = await supabase.from('resources').select('*, subjects(name), topics(name)').order('created_at', { ascending: false })
         setResources(data ?? [])
         setForm({ level_id: '', subject_id: '', topic_id: '', type: 'note', title: '', file_url: '', is_premium: false, year: '' })
