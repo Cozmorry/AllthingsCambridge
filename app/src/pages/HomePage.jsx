@@ -7,29 +7,29 @@ const features = [
         title: 'Past Papers & Notes',
         desc: 'Explore exam papers and detailed notes',
         icon: FileText,
-        color: 'text-blue-500',
-        bg: 'bg-blue-50'
+        color: 'text-primary-600',
+        bg: 'bg-primary-50'
     },
     {
         title: 'Flashcards & Quizzes',
         desc: 'Boost your memory with interactive tools',
         icon: Layers,
-        color: 'text-orange-500',
-        bg: 'bg-orange-50'
+        color: 'text-secondary-600',
+        bg: 'bg-secondary-50'
     },
     {
         title: 'Community Forum',
         desc: 'Connect with students & educators',
         icon: MessageCircle,
-        color: 'text-blue-500',
-        bg: 'bg-blue-50'
+        color: 'text-primary-600',
+        bg: 'bg-primary-50'
     },
     {
         title: 'Exam Tips & Blogs',
         desc: 'Get expert advice and study tips',
         icon: Lightbulb,
-        color: 'text-yellow-500',
-        bg: 'bg-yellow-50'
+        color: 'text-secondary-600',
+        bg: 'bg-secondary-50'
     }
 ]
 
@@ -67,7 +67,7 @@ const plans = [
         color: 'bg-white',
         text: 'text-gray-900',
         border: 'border-gray-200',
-        btnBg: 'bg-[#1a56db]',
+        btnBg: 'bg-primary-600',
         headerBg: 'bg-white text-gray-900',
         priceColor: 'text-gray-500 text-sm font-semibold'
     },
@@ -75,25 +75,25 @@ const plans = [
         name: 'Standard',
         price: '$9.99 / month',
         features: ['Full Access to Notes', 'Flashcards & Quizzes', 'Progress Tracking'],
-        button: 'Set Sccrribe', // Keeping original typo for accuracy, or "Subscribe"
+        button: 'Set Subscribe',
         color: 'bg-white',
         text: 'text-gray-900',
         border: 'border-gray-200',
-        btnBg: 'bg-[#3b82f6]',
-        headerBg: 'bg-[#3b82f6] text-white',
-        priceColor: 'text-blue-100 text-sm'
+        btnBg: 'bg-gray-900 text-white',
+        headerBg: 'bg-primary-600 text-white',
+        priceColor: 'text-primary-100 text-sm'
     },
     {
         name: 'Premium',
         price: '$19.99 / month',
         features: ['All Access Features', 'Exclusive Webinars', 'Priority Support'],
-        button: 'Get Sscribe', // Keeping typo or "Subscribe"
+        button: 'Get Subscribe',
         color: 'bg-white',
         text: 'text-gray-900',
         border: 'border-gray-200',
-        btnBg: 'bg-[#1e40af]',
-        headerBg: 'bg-[#1e40af] text-white',
-        priceColor: 'text-blue-200 text-sm'
+        btnBg: 'bg-primary-800',
+        headerBg: 'bg-primary-800 text-white',
+        priceColor: 'text-primary-200 text-sm'
     }
 ]
 
@@ -127,52 +127,53 @@ const HomePage = () => {
                 We will integrate the hero section seamlessly. */}
 
             {/* ── Hero ── */}
-            <section className="bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] pt-12 pb-20 px-6 lg:px-16 text-white relative overflow-hidden">
+            <section className="bg-gradient-to-b from-primary-600 to-[#f8fafc] pt-12 pb-20 px-6 lg:px-16 text-white relative overflow-hidden">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between z-10 relative">
                     <div className="md:w-1/2 mb-12 md:mb-0">
-                        <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
+                        <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4 text-gray-900 drop-shadow-sm">
                             Master Cambridge Exams<br />with Confidence
                         </h1>
-                        <p className="text-blue-100 text-lg mb-8 max-w-md">
+                        <p className="text-gray-700 font-medium text-lg mb-8 max-w-md">
                             Access past papers, notes, flashcards, and community support—all in one place.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4">
                             {user ? (
-                                <Link to="/account" className="bg-[#fbbf24] hover:bg-[#f59e0b] text-gray-900 font-semibold px-6 py-3 rounded-md transition-colors text-center">
+                                <Link to="/account" className="bg-gray-900 hover:bg-black text-white shadow-md font-semibold px-6 py-3 rounded-md transition-colors text-center">
                                     Browse Subjects
                                 </Link>
                             ) : (
-                                <Link to="/signup" className="bg-[#fbbf24] hover:bg-[#f59e0b] text-gray-900 font-semibold px-6 py-3 rounded-md transition-colors text-center">
+                                <Link to="/signup" className="bg-gray-900 hover:bg-black text-white shadow-md font-semibold px-6 py-3 rounded-md transition-colors text-center">
                                     Start Learning Free
                                 </Link>
                             )}
                             {isSubscribed ? (
-                                <Link to="/account" className="border border-blue-300 hover:bg-blue-700/50 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center">
+                                <Link to="/account" className="border-2 border-primary-600 text-primary-700 hover:bg-primary-50 font-semibold px-6 py-3 rounded-md transition-colors text-center">
                                     My Account
                                 </Link>
                             ) : (
-                                <Link to="/pricing" className="border border-blue-300 hover:bg-blue-700/50 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center">
+                                <Link to="/pricing" className="border-2 border-primary-600 text-primary-700 hover:bg-primary-50 font-semibold px-6 py-3 rounded-md transition-colors text-center">
                                     View Pricing Plans
                                 </Link>
                             )}
                         </div>
                     </div>
-                    <div className="md:w-1/2 flex justify-end">
+                    <div className="md:w-1/2 flex justify-end relative">
+                        {/* More accurate SVG illustration placeholder from unDraw (Education/Studying) */}
                         <img
-                            src="https://placehold.co/600x400/1e40af/ffffff?text=Students+Illustration"
+                            src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=800"
                             alt="Students studying"
-                            className="w-full max-w-lg rounded-xl shadow-2xl"
+                            className="w-full max-w-lg object-cover rounded-2xl relative z-10 shadow-2xl"
                         />
                     </div>
                 </div>
                 {/* Decorative elements */}
-                <div className="absolute top-10 right-1/4 w-12 h-12 bg-green-400 rounded-full opacity-20 blur-xl"></div>
-                <div className="absolute bottom-10 left-1/4 w-16 h-16 bg-yellow-400 rounded-full opacity-20 blur-xl"></div>
+                <div className="absolute top-10 right-1/4 w-12 h-12 bg-primary-200 rounded-full opacity-40 blur-xl"></div>
+                <div className="absolute bottom-10 left-1/4 w-16 h-16 bg-secondary-300 rounded-full opacity-40 blur-xl"></div>
             </section>
 
             {/* ── Our Features ── */}
             <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
-                <h2 className="text-3xl font-bold text-[#1e3a8a] mb-10">Our Features</h2>
+                <h2 className="text-3xl font-bold text-primary-800 mb-10">Our Features</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     {features.map((feat, idx) => (
                         <div key={idx} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-start text-left hover:shadow-md transition-shadow">
@@ -188,19 +189,19 @@ const HomePage = () => {
 
             {/* ── Why Choose Us? ── */}
             <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto">
-                <h2 className="text-3xl font-bold text-[#1e3a8a] mb-10 text-center">Why Choose Us?</h2>
+                <h2 className="text-3xl font-bold text-primary-800 mb-10 text-center">Why Choose Us?</h2>
                 <div className="flex flex-col md:flex-row items-center gap-12">
                     <div className="md:w-1/2">
                         <img
-                            src="https://placehold.co/600x400/e2e8f0/475569?text=Students+Group"
-                            alt="Students Group"
-                            className="w-full rounded-xl shadow-lg"
+                            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop"
+                            alt="Students studying together"
+                            className="w-full rounded-2xl shadow-xl object-cover h-64 md:h-80"
                         />
                     </div>
                     <div className="md:w-1/2 space-y-4">
                         {reasons.map((reason, idx) => (
                             <div key={idx} className="flex items-center gap-3 border-b border-gray-200 pb-4">
-                                <div className="text-teal-500">
+                                <div className="text-primary-500">
                                     <Check size={24} strokeWidth={3} />
                                 </div>
                                 <span className="text-lg text-gray-700 font-medium">{reason}</span>
@@ -212,7 +213,7 @@ const HomePage = () => {
 
             {/* ── Success Stories ── */}
             <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
-                <h2 className="text-3xl font-bold text-[#1e3a8a] mb-10">Success Stories</h2>
+                <h2 className="text-3xl font-bold text-primary-800 mb-10">Success Stories</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {testimonials.map((test, idx) => (
                         <div key={idx} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start gap-4 text-left">
@@ -220,7 +221,7 @@ const HomePage = () => {
                             <div>
                                 <p className="text-gray-700 text-sm mb-2">{test.quote}</p>
                                 <div className="flex items-center justify-between">
-                                    <div className="flex text-yellow-400">
+                                    <div className="flex text-secondary-500">
                                         {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
                                     </div>
                                     <span className="text-gray-500 text-xs font-medium">-{test.name}</span>
@@ -233,7 +234,7 @@ const HomePage = () => {
 
             {/* ── Choose Your Plan ── */}
             <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
-                <h2 className="text-3xl font-bold text-[#1e3a8a] mb-10">Choose Your Plan</h2>
+                <h2 className="text-3xl font-bold text-primary-800 mb-10">Choose Your Plan</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-end">
                     {plans.map((plan, idx) => (
                         <div key={idx} className={`bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 flex flex-col h-full ${idx === 1 ? 'md:-translate-y-4' : ''}`}>
@@ -246,7 +247,7 @@ const HomePage = () => {
                                 <ul className="space-y-4 text-left mb-8 flex-1">
                                     {plan.features.map((feat, fIdx) => (
                                         <li key={fIdx} className="flex items-center gap-3 text-sm text-gray-700">
-                                            <Check size={16} className={idx === 0 ? "text-blue-600" : "text-teal-500"} />
+                                            <Check size={16} className="text-primary-500" />
                                             {feat}
                                         </li>
                                     ))}
@@ -262,7 +263,7 @@ const HomePage = () => {
 
             {/* ── Latest from Our Blog ── */}
             <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
-                <h2 className="text-3xl font-bold text-[#1e3a8a] mb-10">Latest from Our Blog</h2>
+                <h2 className="text-3xl font-bold text-primary-800 mb-10">Latest from Our Blog</h2>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {blogs.map((blog, idx) => (
                         <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-left hover:shadow-md transition-shadow">
