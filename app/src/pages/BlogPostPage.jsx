@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { sanitizeHtml } from '../lib/sanitize'
 
 const BlogPostPage = () => {
     const { slug } = useParams()
@@ -14,7 +15,7 @@ const BlogPostPage = () => {
             {post.cover_image && <img src={post.cover_image} alt={post.title} className="w-full h-64 object-cover rounded-2xl mb-8" />}
             <h1 className="text-3xl font-extrabold text-gray-900 mb-4">{post.title}</h1>
             <p className="text-sm text-gray-400 mb-8">{post.published_at ? new Date(post.published_at).toLocaleDateString() : ''}</p>
-            <div className="prose text-gray-700" dangerouslySetInnerHTML={{ __html: post.content ?? '' }} />
+            <div className="prose text-gray-700" dangerouslySetInnerHTML={{ __html: sanitizeHtml(post.content ?? '') }} />
         </div>
     )
 }
