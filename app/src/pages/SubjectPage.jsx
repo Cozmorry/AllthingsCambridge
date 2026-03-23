@@ -21,7 +21,7 @@ const SubjectPage = () => {
     const [subject, setSubject] = useState(null)
     const [level, setLevel] = useState(null)
     const [topics, setTopics] = useState([])
-    const [resources, setResources] = useState([])
+    const [resourcesCache, setResourcesCache] = useState({})
     const [decks, setDecks] = useState([])
     const [loading, setLoading] = useState(true)
 
@@ -42,6 +42,7 @@ const SubjectPage = () => {
     useEffect(() => {
         const load = async () => {
             setLoading(true)
+            setResourcesCache({}) // Clear cache when subject changes
             const { data: lvl } = await supabase.from('levels').select('*').eq('slug', levelSlug).single()
             setLevel(lvl)
             if (lvl) {
@@ -62,17 +63,20 @@ const SubjectPage = () => {
     }, [levelSlug, subjectSlug])
 
     useEffect(() => {
-        if (!subject) return
+        if (!subject || activeTab === 'flashcards' || resourcesCache[activeTab]) return
+        let ignore = false
         const loadResources = async () => {
-            if (activeTab === 'flashcards') return
             const { data } = await supabase
                 .from('resources')
                 .select('*')
                 .eq('subject_id', subject.id)
                 .eq('type', activeTab === 'notes' ? 'note' : activeTab)
-            setResources(data ?? [])
+            if (!ignore) {
+                setResourcesCache(prev => ({ ...prev, [activeTab]: data ?? [] }))
+            }
         }
         loadResources()
+        return () => { ignore = true }
     }, [activeTab, subject])
 
     if (loading) return <PageLoader />
@@ -124,7 +128,7 @@ const SubjectPage = () => {
             ) : activeTab === 'flashcards' ? (
                 <FlashcardDecks decks={decks} levelSlug={levelSlug} subjectSlug={subjectSlug} />
             ) : (
-                <ResourceList resources={resources} />
+                <ResourceList resources={resourcesCache[activeTab] || []} />
             )}
         </div>
     )
