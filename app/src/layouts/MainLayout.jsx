@@ -65,7 +65,7 @@ const MainLayout = () => {
     }, [])
 
     return (
-        <div className={`flex h-screen overflow-hidden ${dark ? 'dark' : ''} bg-[#f3f4f9] dark:bg-[#0c1220]`}>
+        <div className={`flex h-screen overflow-hidden ${dark ? 'dark' : ''} ${location.pathname === '/' ? 'bg-primary-600 dark:bg-[#0c1220]' : 'bg-[#f3f4f9] dark:bg-[#0c1220]'}`}>
             {/* Mobile Backdrop for Primary Sidebar */}
             {sidebarOpen && (
                 <div
@@ -78,14 +78,14 @@ const MainLayout = () => {
             )}
 
             {/* Main Primary Sidebar */}
-            <aside className={`shrink-0 bg-white border-r border-[#e5e7eb] flex flex-col transition-all duration-300 z-40 fixed lg:relative h-full overflow-hidden ${sidebarOpen ? 'w-[260px] translate-x-0 shadow-2xl lg:shadow-none' : 'w-[260px] -translate-x-full lg:translate-x-0 lg:w-[72px]'
+            <aside className={`shrink-0 border-r flex flex-col transition-all duration-300 z-40 fixed lg:relative h-full overflow-hidden ${location.pathname === '/' ? 'bg-transparent border-transparent' : 'bg-[#f8fafc] border-[#e5e7eb] dark:bg-[#1e293b] dark:border-gray-800'} ${sidebarOpen ? 'w-[260px] translate-x-0 shadow-2xl lg:shadow-none' : 'w-[260px] -translate-x-full lg:translate-x-0 lg:w-[72px]'
                 }`}>
                 {/* Logo */}
-                <div className="h-16 flex items-center px-4 border-b border-[#e5e7eb] shrink-0">
+                <div className={`h-16 flex items-center px-4 shrink-0 border-b ${location.pathname === '/' ? 'border-transparent' : 'border-[#e5e7eb] dark:border-gray-800'}`}>
                     {sidebarOpen ? (
-                        <Link to="/" className="flex items-center gap-2.5 font-extrabold text-lg text-gray-900 truncate" onClick={() => { setActiveCategory(null); if (window.innerWidth < 1024) setSidebarOpen(false); }}>
+                        <Link to="/" className="flex items-center gap-2.5 font-extrabold text-lg truncate" onClick={() => { setActiveCategory(null); if (window.innerWidth < 1024) setSidebarOpen(false); }}>
                             <img src="/icon.png" alt="ATC" className="w-8 h-8 rounded-lg shrink-0" />
-                            AllThingsCambridge
+                            <span className={location.pathname === '/' ? 'text-white' : 'text-gray-900 dark:text-white'}>AllThingsCambridge</span>
                         </Link>
                     ) : (
                         <Link to="/" className="mx-auto hidden lg:flex" onClick={() => setActiveCategory(null)}><img src="/icon.png" alt="ATC" className="w-8 h-8 rounded-lg" /></Link>
@@ -114,12 +114,13 @@ const MainLayout = () => {
                                                 if (item.to && window.innerWidth < 1024) setSidebarOpen(false)
                                                 setActiveCategory(null)
                                             }}
-                                            className={({ isActive }) =>
-                                                `flex items-center ${sidebarOpen ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl mb-1 text-sm font-semibold transition-all group ` +
-                                                (isActive && !activeCategory
-                                                    ? 'bg-[#eef1ff] text-[#2d59ff]'
-                                                    : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900')
-                                            }
+                                            className={({ isActive }) => {
+                                                const isHome = location.pathname === '/';
+                                                const activeClass = isHome ? 'bg-white/10 text-white' : 'bg-[#eef1ff] text-[#2d59ff] dark:bg-primary-900/20 dark:text-primary-400';
+                                                const inactiveClass = isHome ? 'text-white/70 hover:bg-white/5 hover:text-white' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200';
+                                                return `flex items-center ${sidebarOpen ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl mb-1 text-sm font-semibold transition-all group ` +
+                                                (isActive && !activeCategory ? activeClass : inactiveClass)
+                                            }}
                                             title={!sidebarOpen ? item.label : undefined}
                                         >
                                             <Icon size={18} className="shrink-0" />
@@ -136,8 +137,8 @@ const MainLayout = () => {
                                         className={
                                             `w-full flex items-center justify-between ${sidebarOpen ? 'px-3' : 'justify-center'} py-2.5 rounded-xl mb-1 text-sm font-semibold transition-all ` +
                                             (isActiveResource
-                                                ? 'bg-[#2d59ff] text-white shadow-md'
-                                                : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900')
+                                                ? (location.pathname === '/' ? 'bg-white/20 text-white shadow-sm' : 'bg-[#2d59ff] text-white shadow-md dark:bg-primary-600')
+                                                : (location.pathname === '/' ? 'text-white/70 hover:bg-white/5 hover:text-white' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200'))
                                         }
                                         title={!sidebarOpen ? item.label : undefined}
                                     >
@@ -156,10 +157,13 @@ const MainLayout = () => {
                     {isAdmin && (
                         <div className="px-4 mb-4">
                             {sidebarOpen && <p className="text-[11px] font-bold tracking-widest text-[#9ca3af] uppercase mb-3 px-2">Admin</p>}
-                            <NavLink to="/admin" onClick={() => { setActiveCategory(null); if (window.innerWidth < 1024) setSidebarOpen(false); }} className={({ isActive }) =>
-                                `flex items-center ${sidebarOpen ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl text-sm font-semibold transition-all ` +
-                                (isActive && !activeCategory ? 'bg-secondary-50 text-secondary-700' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900')
-                            }>
+                            <NavLink to="/admin" onClick={() => { setActiveCategory(null); if (window.innerWidth < 1024) setSidebarOpen(false); }} className={({ isActive }) => {
+                                const isHome = location.pathname === '/';
+                                const activeClass = isHome ? 'bg-white/10 text-white' : 'bg-secondary-50 text-secondary-700 dark:bg-secondary-900/20 dark:text-secondary-400';
+                                const inactiveClass = isHome ? 'text-white/70 hover:bg-white/5 hover:text-white' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200';
+                                return `flex items-center ${sidebarOpen ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl text-sm font-semibold transition-all ` +
+                                (isActive && !activeCategory ? activeClass : inactiveClass)
+                            }}>
                                 <Settings size={18} className="shrink-0" />
                                 {sidebarOpen && <span>Admin Panel</span>}
                             </NavLink>
@@ -169,7 +173,7 @@ const MainLayout = () => {
 
                 {/* Bottom user area */}
                 {user && (
-                    <div className="border-t border-gray-100 p-3 shrink-0">
+                    <div className={`p-3 shrink-0 border-t ${location.pathname === '/' ? 'border-white/10' : 'border-[#e5e7eb] dark:border-gray-800'}`}>
                         <div className={`flex items-center ${sidebarOpen ? 'gap-3 px-2' : 'justify-center'}`}>
                             {profile?.avatar_url ? (
                                 <img src={profile.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
@@ -180,12 +184,12 @@ const MainLayout = () => {
                             )}
                             {sidebarOpen && (
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-gray-800 truncate dark:text-gray-100">{profile?.full_name ?? 'Student'}</p>
-                                    <p className="text-xs text-gray-400 truncate">{user.email}</p>
+                                    <p className={`text-sm font-medium truncate ${location.pathname === '/' ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>{profile?.full_name ?? 'Student'}</p>
+                                    <p className={`text-xs truncate ${location.pathname === '/' ? 'text-white/60' : 'text-gray-400'}`}>{user.email}</p>
                                 </div>
                             )}
                             {sidebarOpen && (
-                                <button onClick={signOut} className="p-1.5 text-gray-400 hover:text-red-500 rounded-lg hover:bg-red-50 transition-colors shrink-0" title="Sign Out">
+                                <button onClick={signOut} className={`p-1.5 rounded-lg transition-colors shrink-0 ${location.pathname === '/' ? 'text-white/50 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'}`} title="Sign Out">
                                     <LogOut size={16} />
                                 </button>
                             )}
@@ -242,11 +246,11 @@ const MainLayout = () => {
             )}
 
             {/* Main content */}
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative z-10 bg-white">
+            <div className={`flex-1 flex flex-col min-w-0 overflow-y-auto relative z-10 ${location.pathname === '/' ? 'bg-transparent' : 'bg-white dark:bg-gray-900'}`}>
                 {/* Header */}
-                <header className="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-4 lg:px-6 shrink-0 z-20">
+                <header className={`h-16 border-b flex items-center justify-between px-4 lg:px-6 shrink-0 z-20 transition-colors sticky top-0 ${location.pathname === '/' ? 'bg-transparent border-transparent -mb-16' : 'bg-white border-gray-100 dark:bg-gray-900 dark:border-gray-800'}`}>
                     <div className="flex items-center gap-3">
-                        <button onClick={() => setSidebarOpen(!sidebarOpen)} className="p-2 rounded-xl text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+                        <button onClick={() => setSidebarOpen(!sidebarOpen)} className={`p-2 rounded-xl transition-colors ${location.pathname === '/' ? 'text-primary-800 hover:bg-primary-50/50 hover:text-primary-900' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-800'}`}>
                             {sidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
                         </button>
                         {location.pathname !== '/' && (() => {
@@ -286,13 +290,13 @@ const MainLayout = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setDark(!dark)} className="p-2 rounded-xl text-gray-400 hover:bg-gray-50 hover:text-gray-700 transition-colors">
+                        <button onClick={() => setDark(!dark)} className={`p-2 rounded-xl transition-colors ${location.pathname === '/' ? 'text-primary-800 hover:bg-primary-50/50 hover:text-primary-900' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-800'}`}>
                             {dark ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
                         {!user ? (
                             <>
-                                <Link to="/login" className="hidden sm:block px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Log In</Link>
-                                <Link to="/signup" className="px-4 py-2 text-sm font-semibold bg-primary-600 hover:bg-primary-700 text-white rounded-xl transition-colors shadow-sm shadow-primary-600/20">Sign Up</Link>
+                                <Link to="/login" className={`hidden sm:block px-4 py-2 text-sm font-medium transition-colors ${location.pathname === '/' ? 'text-primary-800 hover:text-primary-900' : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'}`}>Log In</Link>
+                                <Link to="/signup" className={`px-4 py-2 text-sm font-semibold rounded-xl transition-colors shadow-sm ${location.pathname === '/' ? 'bg-gray-900 hover:bg-gray-800 text-white shadow-gray-900/20' : 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-600/20'}`}>Sign Up</Link>
                             </>
                         ) : (
                             <Link to="/account" className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-50 transition-colors">
@@ -310,8 +314,8 @@ const MainLayout = () => {
                 </header>
 
                 {/* Page outlet */}
-                <main className="flex-1 overflow-y-auto">
-                    <div className="page-enter">
+                <main className="flex-1 flex flex-col min-h-0">
+                    <div className="page-enter flex-1">
                         <Outlet />
                     </div>
                 </main>

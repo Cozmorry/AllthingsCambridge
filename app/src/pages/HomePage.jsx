@@ -99,19 +99,19 @@ const plans = [
 
 const blogs = [
     {
-        title: 'Top 10 Study Hacks for',
+        title: 'Top 10 Study Hacks for Cambridge',
         img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+1'
     },
     {
-        title: 'How to Omar Exam Stress', // Typo from image
+        title: 'How to Overcome Exam Stress',
         img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+2'
     },
     {
-        title: 'A Go to Acing Your Stress', // Typo from image
+        title: 'A Guide to Acing Your Exams',
         img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+3'
     },
     {
-        title: 'A aid to Your IGSiSes', // Typo from image
+        title: 'A Guide to Your IGCSEs',
         img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+4'
     }
 ]
@@ -127,7 +127,7 @@ const HomePage = () => {
                 We will integrate the hero section seamlessly. */}
 
             {/* ── Hero ── */}
-            <section className="bg-gradient-to-b from-primary-600 to-[#f8fafc] pt-12 pb-20 px-6 lg:px-16 text-white relative overflow-hidden">
+            <section className="bg-gradient-to-b from-primary-600 to-[#f8fafc] pt-12 pb-20 px-6 lg:px-16 text-white relative overflow-hidden -mt-16 sm:-mt-0" style={{ paddingTop: 'calc(3rem + 4rem)' }}>
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between z-10 relative">
                     <div className="md:w-1/2 mb-12 md:mb-0">
                         <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4 text-gray-900 drop-shadow-sm">
@@ -157,12 +157,11 @@ const HomePage = () => {
                             )}
                         </div>
                     </div>
-                    <div className="md:w-1/2 flex justify-end relative">
-                        {/* More accurate SVG illustration placeholder from unDraw (Education/Studying) */}
+                    <div className="md:w-1/2 flex justify-end">
                         <img
-                            src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&q=80&w=800"
+                            src="https://placehold.co/600x400/007c74/ffffff?text=Students+Illustration"
                             alt="Students studying"
-                            className="w-full max-w-lg object-cover rounded-2xl relative z-10 shadow-2xl"
+                            className="w-full max-w-lg rounded-xl shadow-2xl"
                         />
                     </div>
                 </div>
@@ -193,9 +192,9 @@ const HomePage = () => {
                 <div className="flex flex-col md:flex-row items-center gap-12">
                     <div className="md:w-1/2">
                         <img
-                            src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=800&auto=format&fit=crop"
-                            alt="Students studying together"
-                            className="w-full rounded-2xl shadow-xl object-cover h-64 md:h-80"
+                            src="https://placehold.co/600x400/e2e8f0/475569?text=Students+Group"
+                            alt="Students Group"
+                            className="w-full rounded-xl shadow-lg"
                         />
                     </div>
                     <div className="md:w-1/2 space-y-4">

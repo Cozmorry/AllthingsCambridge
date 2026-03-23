@@ -314,13 +314,13 @@ body {
 }
 
 .dark .bg-white,
-.dark [class*="bg-white"] {
+.dark .bg-white:not(.bg-transparent) {
   background-color: #1e293b !important;
   border-color: #334155 !important;
 }
 
-.dark [class*="bg-[#f3f4f9]"],
-.dark [class*="bg-[#f8fafc]"],
+.dark .bg-\[\#f3f4f9\],
+.dark .bg-\[\#f8fafc\],
 .dark .bg-gray-50 {
   background-color: #0c1220 !important;
 }
