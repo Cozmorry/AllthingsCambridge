@@ -114,11 +114,9 @@ export const AuthProvider = ({ children }) => {
             setUser(null)
             setProfile(null)
             // Hard flush local storage just in case Supabase got stuck
-            for (let key in localStorage) {
-                if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
-                    localStorage.removeItem(key)
-                }
-            }
+            Object.keys(localStorage)
+                .filter(key => key.startsWith('sb-') && key.endsWith('-auth-token'))
+                .forEach(key => localStorage.removeItem(key))
         }
     }
 
