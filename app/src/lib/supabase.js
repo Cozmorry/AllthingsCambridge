@@ -22,6 +22,10 @@ const noopLock = async (name, acquireTimeout, fn) => {
     return await fn()
 }
 
+const session = localStorage.getItem('passkey_active_session')
+const headers = {}
+if (session) headers['x-passkey-user'] = session
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
         lock: noopLock,
@@ -29,19 +33,19 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         autoRefreshToken: true,
     },
     global: {
-        headers: {
-            'x-passkey-user': localStorage.getItem('passkey_active_session') || ''
-        }
+        headers
     }
 })
 
 // Function to dynamically update headers after passkey verification
 export const setPasskeyHeader = (userId) => {
-    if (userId) localStorage.setItem('passkey_active_session', userId)
-    else localStorage.removeItem('passkey_active_session')
-    
-    // Refresh client headers
-    supabase.rest.headers['x-passkey-user'] = userId || ''
+    if (userId) {
+        localStorage.setItem('passkey_active_session', userId)
+        supabase.rest.headers['x-passkey-user'] = userId
+    } else {
+        localStorage.removeItem('passkey_active_session')
+        delete supabase.rest.headers['x-passkey-user']
+    }
 }
 
 export { isConfigured as supabaseConfigured }
