@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { Eye, EyeOff } from 'lucide-react'
+import Label from '../../components/Label'
 
 const LoginPage = () => {
     const { signIn } = useAuth()
@@ -32,7 +33,7 @@ const LoginPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+                    <Label>Email</Label>
                     <input
                         type="email" required
                         value={form.email}
@@ -42,7 +43,7 @@ const LoginPage = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+                    <Label>Password</Label>
                     <div className="relative">
                         <input
                             type={showPw ? 'text' : 'password'} required

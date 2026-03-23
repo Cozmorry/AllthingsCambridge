@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
+import Label from '../../components/Label'
 
 const ResetPasswordPage = () => {
     const { resetPassword } = useAuth()
@@ -37,7 +38,7 @@ const ResetPasswordPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+                    <Label>Email</Label>
                     <input
                         type="email" required
                         value={email}

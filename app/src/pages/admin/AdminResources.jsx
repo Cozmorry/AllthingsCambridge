@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Upload, Link as LinkIcon, FileText, Trash2 } from 'lucide-react'
+import Label from '../../components/Label'
 
 const RESOURCE_TYPES = ['note', 'past_paper', 'topical_question']
 
@@ -68,7 +69,7 @@ const AdminResources = () => {
                         <Select label="Type" value={form.type} onChange={v => setForm(f => ({ ...f, type: v }))} options={RESOURCE_TYPES.map(t => ({ value: t, label: t.replace('_', ' ').replace(/\b\w/g, c => c.toUpperCase()) }))} />
                         <Field label="Title" value={form.title} onChange={v => setForm(f => ({ ...f, title: v }))} required />
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Upload PDF</label>
+                            <Label>Upload PDF</Label>
                             <input type="file" accept=".pdf,.doc,.docx" onChange={e => setFile(e.target.files[0])} className="w-full text-sm text-gray-500 file:mr-3 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100" />
                         </div>
                         <Field label="Or paste URL" value={form.file_url} onChange={v => setForm(f => ({ ...f, file_url: v }))} placeholder="https://..." />
@@ -109,7 +110,7 @@ const AdminResources = () => {
 
 const Field = ({ label, value, onChange, placeholder, required }) => (
     <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+        <Label required={required}>{label}</Label>
         <input required={required} value={value} onChange={e => onChange(e.target.value)} placeholder={placeholder}
             className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" />
     </div>
@@ -117,7 +118,7 @@ const Field = ({ label, value, onChange, placeholder, required }) => (
 
 const Select = ({ label, value, onChange, options, required }) => (
     <div>
-        <label className="block text-sm font-semibold text-gray-700 mb-1.5">{label}</label>
+        <Label required={required}>{label}</Label>
         <select required={required} value={value} onChange={e => onChange(e.target.value)}
             className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 bg-white">
             <option value="">Select…</option>

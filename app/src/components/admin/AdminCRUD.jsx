@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Pencil, Trash2, Plus, X, Check } from 'lucide-react'
+import Label from '../Label'
 
 /**
  * Reusable admin CRUD table component.
@@ -87,9 +88,9 @@ const AdminCRUD = ({ table, title, fields, select = '*', displayCol = 'name' }) 
                     <form onSubmit={handleSubmit} className="grid sm:grid-cols-2 gap-5">
                         {fields.map((field) => (
                             <div key={field.key} className={field.type === 'textarea' ? 'sm:col-span-2' : ''}>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                                    {field.label}{field.required && <span className="text-red-500 ml-0.5">*</span>}
-                                </label>
+                                <Label required={field.required}>
+                                    {field.label}
+                                </Label>
                                 {field.type === 'select' ? (
                                     <select
                                         required={field.required}

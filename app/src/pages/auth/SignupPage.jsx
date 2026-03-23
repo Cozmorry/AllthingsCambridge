@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { Eye, EyeOff } from 'lucide-react'
+import Label from '../../components/Label'
 
 const SignupPage = () => {
     const { signUp } = useAuth()
@@ -43,7 +44,7 @@ const SignupPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name</label>
+                    <Label>Full Name</Label>
                     <input
                         type="text" required
                         value={form.fullName}
@@ -53,7 +54,7 @@ const SignupPage = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+                    <Label>Email</Label>
                     <input
                         type="email" required
                         value={form.email}
@@ -63,7 +64,7 @@ const SignupPage = () => {
                     />
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Password</label>
+                    <Label>Password</Label>
                     <div className="relative">
                         <input
                             type={showPw ? 'text' : 'password'} required
@@ -84,7 +85,7 @@ const SignupPage = () => {
                     </div>
                 </div>
                 <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1.5">Confirm Password</label>
+                    <Label>Confirm Password</Label>
                     <input
                         type="password" required
                         value={form.confirm}

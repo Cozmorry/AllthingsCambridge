@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Mail, MapPin, MessageCircle } from 'lucide-react'
+import Label from '../components/Label'
 
 const ContactPage = () => {
     const [form, setForm] = useState({ name: '', email: '', message: '' })
@@ -39,19 +40,19 @@ const ContactPage = () => {
                     ) : (
                         <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-100 p-8 space-y-5">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Name</label>
+                                <Label>Name</Label>
                                 <input required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
                                     placeholder="Your name" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Email</label>
+                                <Label>Email</Label>
                                 <input required type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
                                     placeholder="your@email.com" />
                             </div>
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Message</label>
+                                <Label>Message</Label>
                                 <textarea required rows={5} value={form.message} onChange={e => setForm(f => ({ ...f, message: e.target.value }))}
                                     className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none"
                                     placeholder="How can we help?" />

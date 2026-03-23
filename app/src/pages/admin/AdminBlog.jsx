@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import { Trash2 } from 'lucide-react'
+import Label from '../../components/Label'
 
 const AdminBlog = () => {
     const [posts, setPosts] = useState([])
@@ -44,22 +45,22 @@ const AdminBlog = () => {
                     <h2 className="font-bold text-gray-900 mb-5">New Post</h2>
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Title</label>
+                            <Label>Title</Label>
                             <input required value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value, slug: autoSlug(e.target.value) }))}
                                 className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" placeholder="Post title" />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Slug</label>
+                            <Label>Slug</Label>
                             <input required value={form.slug} onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
                                 className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 font-mono" />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Cover Image URL</label>
+                            <Label>Cover Image URL</Label>
                             <input value={form.cover_image} onChange={e => setForm(f => ({ ...f, cover_image: e.target.value }))}
                                 className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400" placeholder="https://..." />
                         </div>
                         <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-1.5">Content (HTML or plain text)</label>
+                            <Label>Content (HTML or plain text)</Label>
                             <textarea required rows={8} value={form.content} onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                                 className="w-full px-3 py-2.5 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 resize-none font-mono" />
                         </div>
