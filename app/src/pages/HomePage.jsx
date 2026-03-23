@@ -63,7 +63,7 @@ const plans = [
     {
         name: 'Free',
         price: 'BASIC ACCESS',
-        features: ['Access to Free Notes', 'Community Forums', 'Basic Flashcards'],
+        features: ['5 Free Resource Views', 'Access to Free Notes', 'Community Forums', 'Basic Flashcards'],
         button: 'Get Started',
         color: 'bg-white',
         text: 'text-gray-900',
@@ -99,63 +99,73 @@ const plans = [
 ]
 
 const BlogSkeleton = () => (
-    <div className="bg-white rounded-3xl shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden text-left">
-        <div className="h-48 bg-gray-100 animate-pulse"></div>
-        <div className="p-6 space-y-3">
-            <div className="h-4 bg-gray-100 rounded w-3/4 animate-pulse"></div>
-            <div className="h-4 bg-gray-100 rounded w-1/2 animate-pulse"></div>
-            <div className="w-10 h-1 bg-gray-50 rounded-full"></div>
+    <div className="bg-white rounded-[40px] shadow-[0_4px_30px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden text-left">
+        <div className="h-56 bg-gray-100 animate-pulse relative">
+            <div className="absolute inset-0 bg-gradient-to-t from-gray-200/50 to-transparent"></div>
+        </div>
+        <div className="p-8 space-y-4">
+            <div className="h-4 bg-gray-100 rounded-full w-3/4 animate-pulse"></div>
+            <div className="h-4 bg-gray-100 rounded-full w-1/2 animate-pulse"></div>
+            <div className="pt-4 flex items-center justify-between">
+                <div className="w-12 h-1.5 bg-gray-100 rounded-full animate-pulse"></div>
+            </div>
         </div>
     </div>
 )
 
 const HomePage = () => {
-    const { user, isSubscribed } = useAuth()
+    const { user, hasPremiumAccess } = useAuth()
     const [blogs, setBlogs] = useState([])
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        // Simulate loading blogs
-        const timer = setTimeout(() => {
-            setBlogs([
-                {
-                    title: 'Top 10 Study Hacks for Cambridge',
-                    img: 'https://placehold.co/400x250/e2e8f0/475569?text=Study+Hacks'
-                },
-                {
-                    title: 'How to Overcome Exam Stress',
-                    img: 'https://placehold.co/400x250/e2e8f0/475569?text=Exam+Stress'
-                },
-                {
-                    title: 'A Guide to Acing Your Exams',
-                    img: 'https://placehold.co/400x250/e2e8f0/475569?text=Acing+Exams'
-                },
-                {
-                    title: 'A Guide to Your IGCSEs',
-                    img: 'https://placehold.co/400x250/e2e8f0/475569?text=IGCSE+Guide'
-                }
-            ])
-            setLoading(false)
-        }, 1500)
-        return () => clearTimeout(timer)
+        const fetchBlogs = async () => {
+            try {
+                const { data, error } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false }).limit(4)
+                if (error) throw error
+                setBlogs(data || [])
+            } catch (err) {
+                console.error('Blog fetch error:', err)
+                setBlogs([])
+            } finally {
+                setTimeout(() => setLoading(false), 1200)
+            }
+        }
+        fetchBlogs()
     }, [])
+
+    useEffect(() => {
+        // Intersection Observer for scroll reveal (Streaming effect)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed')
+                }
+            })
+        }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' })
+
+        const reveals = document.querySelectorAll('.reveal')
+        reveals.forEach(el => observer.observe(el))
+
+        return () => observer.disconnect()
+    }, [loading])
 
     return (
         <div className="bg-white min-h-screen font-sans">
             {/* ── Hero ── */}
             <section className="bg-gradient-to-br from-primary-900 via-primary-700 to-primary-600 pt-44 pb-32 px-6 lg:px-16 text-white relative overflow-hidden">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between z-10 relative">
-                    <div className="md:w-[55%] mb-12 md:mb-0 animate-fade-up">
-                        <h1 className="text-4xl md:text-5xl lg:text-7xl font-black leading-tight mb-8 tracking-tighter">
+                    <div className="md:w-[55%] mb-12 md:mb-0">
+                        <h1 className="text-4xl md:text-5xl lg:text-7xl font-black leading-tight mb-8 tracking-tighter animate-fade-up">
                             Master Cambridge Exams<br />with Confidence
                         </h1>
-                        <p className="text-primary-50 font-medium text-xl mb-12 max-w-xl opacity-90 leading-relaxed">
+                        <p className="text-primary-50 font-medium text-xl mb-12 max-w-xl opacity-90 leading-relaxed animate-fade-up style-animation-delay" style={{ animationDelay: '200ms' }}>
                             Access past papers, notes, flashcards, and community support—all in one place with AllThingsCambridge.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-5">
+                        <div className="flex flex-col sm:flex-row gap-5 animate-fade-up" style={{ animationDelay: '400ms' }}>
                             {user ? (
-                                <Link to={isSubscribed ? "/levels/a-level" : "/pricing"} className="bg-yellow-400 hover:bg-yellow-500 text-primary-950 shadow-2xl shadow-yellow-900/20 font-black px-10 py-5 rounded-2xl transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 text-center text-xl">
-                                    {isSubscribed ? "Continue Learning" : "Unlock Premium"}
+                                <Link to={hasPremiumAccess ? "/levels/a-level" : "/pricing"} className="bg-yellow-400 hover:bg-yellow-500 text-primary-950 shadow-2xl shadow-yellow-900/20 font-black px-10 py-5 rounded-2xl transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 text-center text-xl">
+                                    {hasPremiumAccess ? "Continue Learning" : "Unlock Premium"}
                                 </Link>
                             ) : (
                                 <Link to="/signup" className="bg-yellow-400 hover:bg-yellow-500 text-primary-950 shadow-2xl shadow-yellow-900/20 font-black px-10 py-5 rounded-2xl transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 text-center text-xl">
@@ -167,12 +177,14 @@ const HomePage = () => {
                             </Link>
                         </div>
                     </div>
-                    <div className="md:w-[45%] flex justify-end animate-float">
-                        <img
-                            src="/hero.png"
-                            alt="Students studying"
-                            className="w-full max-w-lg drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
-                        />
+                    <div className="md:w-[45%] flex justify-end animate-fade-up" style={{ animationDelay: '600ms' }}>
+                        <div className="animate-float">
+                            <img
+                                src="/hero.png"
+                                alt="Students studying"
+                                className="w-full max-w-lg drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
+                            />
+                        </div>
                     </div>
                 </div>
                 {/* Decorative Elements */}
@@ -181,12 +193,12 @@ const HomePage = () => {
             </section>
 
             {/* ── Our Features ── */}
-            <section className="py-28 px-6 lg:px-16 max-w-7xl mx-auto text-center">
-                <h2 className="text-5xl font-black text-primary-950 mb-4">Our Features</h2>
-                <p className="text-gray-500 text-lg mb-20 max-w-2xl mx-auto">Everything you need to excel in your IGCSE, O-Level, and A-Level journey.</p>
+            <section className="py-28 px-6 lg:px-16 max-w-7xl mx-auto text-center reveal">
+                <h2 className="text-5xl font-black text-primary-950 mb-4 tracking-tighter uppercase">Our Features</h2>
+                <p className="text-gray-500 text-lg mb-20 max-w-2xl mx-auto font-medium">Everything you need to excel in your IGCSE, O-Level, and A-Level journey.</p>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                     {features.map((feat, idx) => (
-                        <div key={idx} className="group bg-white p-10 rounded-[32px] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.06)] border border-gray-50 flex flex-col items-center text-center hover:shadow-2xl transition-all hover:-translate-y-2">
+                        <div key={idx} className="group bg-white p-10 rounded-[32px] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.06)] border border-gray-50 flex flex-col items-center text-center hover:shadow-2xl transition-all hover:-translate-y-2 reveal" style={{ transitionDelay: `${idx * 150}ms` }}>
                             <div className={`w-20 h-20 rounded-3xl ${feat.bg} ${feat.color} mb-8 flex items-center justify-center transition-transform group-hover:rotate-6 shadow-sm`}>
                                 <feat.icon size={36} strokeWidth={2.5} />
                             </div>
@@ -198,10 +210,10 @@ const HomePage = () => {
             </section>
 
             {/* ── Why Choose Us? ── */}
-            <section className="py-28 px-6 lg:px-16 bg-gray-50/50">
+            <section className="py-28 px-6 lg:px-16 bg-gray-50/50 reveal">
                 <div className="max-w-7xl mx-auto">
                     <div className="flex flex-col lg:flex-row items-center gap-20">
-                        <div className="lg:w-1/2 relative">
+                        <div className="lg:w-1/2 relative reveal">
                             <div className="absolute -inset-4 bg-primary-200/30 rounded-[40px] blur-2xl"></div>
                             <img
                                 src="/group.png"
@@ -230,11 +242,11 @@ const HomePage = () => {
             </section>
 
             {/* ── Success Stories ── */}
-            <section className="py-28 px-6 lg:px-16 max-w-7xl mx-auto text-center">
-                <h2 className="text-5xl font-black text-primary-950 mb-20">Success Stories</h2>
+            <section className="py-28 px-6 lg:px-16 max-w-7xl mx-auto text-center reveal">
+                <h2 className="text-5xl font-black text-primary-950 mb-20 tracking-tighter uppercase">Success Stories</h2>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                     {testimonials.map((test, idx) => (
-                        <div key={idx} className="bg-white p-10 rounded-[40px] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col items-center text-center relative hover:shadow-xl transition-shadow">
+                        <div key={idx} className="bg-white p-10 rounded-[40px] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col items-center text-center relative hover:shadow-xl transition-shadow reveal" style={{ transitionDelay: `${idx * 200}ms` }}>
                             <img src={test.img} alt={test.name} className="w-24 h-24 rounded-full object-cover mb-8 border-8 border-primary-50 shadow-inner" />
                             <p className="text-gray-800 text-xl font-bold italic leading-relaxed mb-8">"{test.quote}"</p>
                             <div className="mt-auto pt-6 border-t border-gray-50 flex items-center flex-col gap-3 w-full">
@@ -249,16 +261,16 @@ const HomePage = () => {
             </section>
 
             {/* ── Choose Your Plan ── */}
-            <section className="py-28 px-6 lg:px-16 bg-gray-900 rounded-[60px] mx-4 lg:mx-10 my-10 overflow-hidden relative">
+            <section className="py-28 px-6 lg:px-16 bg-gray-900 rounded-[60px] mx-4 lg:mx-10 my-10 overflow-hidden relative reveal">
                 <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary-600/10 rounded-full blur-[100px]"></div>
                 <div className="max-w-7xl mx-auto text-center relative z-10">
-                    <h2 className="text-5xl font-black text-white mb-6">Choose Your Plan</h2>
-                    <p className="text-gray-400 text-lg mb-20 max-w-xl mx-auto">Get the best resources for your academic success today.</p>
+                    <h2 className="text-5xl font-black text-white mb-6 uppercase tracking-tighter">Choose Your Plan</h2>
+                    <p className="text-gray-400 text-lg mb-20 max-w-xl mx-auto font-medium">Get the best resources for your academic success today.</p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto items-stretch">
                         {plans.map((plan, idx) => (
-                            <div key={idx} className={`bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gray-800 flex flex-col transition-all hover:scale-[1.03] ${idx === 1 ? 'md:-translate-y-4 ring-4 ring-primary-500 shadow-primary-500/20' : ''}`}>
+                            <div key={idx} className={`bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gray-800 flex flex-col transition-all hover:scale-[1.03] reveal ${idx === 1 ? 'md:-translate-y-4 ring-4 ring-primary-500 shadow-primary-500/20' : ''}`} style={{ transitionDelay: `${idx * 150}ms` }}>
                                 <div className={`${plan.headerBg} py-8 px-6 text-center`}>
-                                    <p className={`uppercase tracking-widest font-black text-[10px] mb-3 opacity-70`}>{idx === 0 ?'Free Forever' : idx === 1 ? 'Most Popular' : 'Ultimate Support'}</p>
+                                    <p className={`uppercase tracking-widest font-black text-[10px] mb-3 opacity-70`}>{idx === 1 ? 'Most Popular' : idx === 2 ? 'Ultimate Support' : ''}</p>
                                     <h3 className="text-2xl font-black mb-2">{plan.name}</h3>
                                     <div className={`font-black text-xl tracking-tight ${plan.priceColor}`}>{plan.price}</div>
                                 </div>
@@ -273,10 +285,10 @@ const HomePage = () => {
                                             </li>
                                         ))}
                                     </ul>
-                                    <Link to={idx === 0 ? (user ? "/account" : "/signup") : "/pricing"} className={`w-full py-4 rounded-2xl text-white font-black text-base lg:text-lg transition-all ${plan.btnBg} hover:opacity-95 text-center shadow-xl tracking-wider ${user && idx === 0 && !isSubscribed ? 'opacity-50 pointer-events-none' : ''}`}>
+                                    <Link to={idx === 0 ? (user ? "/account" : "/signup") : "/pricing"} className={`w-full py-4 rounded-2xl text-white font-black text-base lg:text-lg transition-all ${plan.btnBg} hover:opacity-95 text-center shadow-xl tracking-wider ${user && idx === 0 && !hasPremiumAccess ? 'opacity-50 pointer-events-none' : ''}`}>
                                         {idx === 0 
-                                            ? (user ? (isSubscribed ? 'Included' : 'Current Plan') : plan.button) 
-                                            : (isSubscribed ? 'Active' : plan.button)}
+                                            ? (user ? (hasPremiumAccess ? 'Included' : 'Current Plan') : plan.button) 
+                                            : (hasPremiumAccess ? 'Active' : plan.button)}
                                     </Link>
                                 </div>
                             </div>
@@ -300,11 +312,11 @@ const HomePage = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
                     {loading ? (
                         [...Array(4)].map((_, i) => <BlogSkeleton key={i} />)
-                    ) : (
+                    ) : blogs.length > 0 ? (
                         blogs.map((blog, idx) => (
-                            <Link to="/blog" key={idx} className="group bg-white rounded-[40px] shadow-[0_4px_30px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden text-left hover:shadow-2xl transition-all hover:-translate-y-2">
+                            <Link to={`/blog/${blog.slug || idx}`} key={idx} className="group bg-white rounded-[40px] shadow-[0_4px_30px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden text-left hover:shadow-2xl transition-all hover:-translate-y-2">
                                 <div className="relative h-56 overflow-hidden">
-                                    <img src={blog.img} alt={blog.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                    <img src={blog.img || blog.image_url || 'https://placehold.co/400x250/f1f5f9/94a3b8?text=Post'} alt={blog.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
                                 </div>
                                 <div className="p-8">
@@ -316,6 +328,10 @@ const HomePage = () => {
                                 </div>
                             </Link>
                         ))
+                    ) : (
+                        // If no blogs, still show skeletons but with a "Coming Soon" styling or just empty?
+                        // The user wants them to appear as in the screenshot but as skeletons.
+                        [...Array(4)].map((_, i) => <BlogSkeleton key={i} />)
                     )}
                 </div>
             </section>

@@ -4,7 +4,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { Eye, EyeOff, Fingerprint } from 'lucide-react'
 
 const LoginPage = () => {
-    const { signIn, signInWithPasskeyMock } = useAuth()
+    const { signIn, signInWithPasskey } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
     const from = location.state?.from?.pathname ?? '/'
@@ -40,7 +40,7 @@ const LoginPage = () => {
                 const mockUserId = new TextDecoder().decode(userHandleArray)
                 
                 setLoading(true)
-                const { error: err } = await signInWithPasskeyMock(mockUserId)
+                const { error: err } = await signInWithPasskey(mockUserId)
                 setLoading(false)
                 
                 if (err) return setError(err.message)

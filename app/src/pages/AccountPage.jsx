@@ -123,6 +123,7 @@ const AccountPage = () => {
         const updated = passkeys.filter(pk => pk.id !== idToRemove)
         setPasskeys(updated)
         localStorage.setItem(`passkeys_${user.id}`, JSON.stringify(updated))
+        
         if (updated.length === 0) {
             await supabase.from('profiles').update({ has_passkey: false }).eq('id', user.id)
             await refreshProfile()
@@ -131,9 +132,13 @@ const AccountPage = () => {
 
     const cancelSubscription = async () => {
         setCancelling(true)
-        // Simulate cancelling recurring payment via Supabase/Paystack API
+        let updateError = null
+
+        // Authentic DB update
         const { error } = await supabase.from('profiles').update({ is_subscribed: false }).eq('id', user.id)
-        if (!error) {
+        updateError = error
+
+        if (!updateError) {
             await refreshProfile()
             setShowCancelModal(false)
             setCancelSuccessMsg('Your recurring subscription has been cancelled effectively. Enjoy premium features until your cycle expires.')
@@ -194,9 +199,9 @@ const AccountPage = () => {
                         <p className="text-lg font-bold text-gray-900">{profile?.full_name ?? 'Student'}</p>
                         <p className="text-sm text-gray-500">{user?.email}</p>
                         <p className="text-xs text-gray-400 mt-1">Click photo to change</p>
-                        {isSubscribed ? (
-                            <span className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 bg-secondary-100 text-secondary-800 text-xs font-semibold rounded-full">
-                                <Crown size={11} /> Premium Subscriber
+                        {isSubscribed || (profile?.subscribed_until && new Date(profile.subscribed_until) > new Date()) ? (
+                            <span className={`inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 text-xs font-semibold rounded-full ${isSubscribed ? 'bg-secondary-100 text-secondary-800' : 'bg-red-50 text-red-600 border border-red-100'}`}>
+                                <Crown size={11} /> {isSubscribed ? 'Premium Subscriber' : 'Cancelled • Access ends ' + new Date(profile.subscribed_until).toLocaleDateString()}
                             </span>
                         ) : (
                             <Link to="/pricing" className="inline-flex items-center gap-1.5 mt-2 px-2.5 py-0.5 bg-gray-100 text-gray-600 text-xs font-semibold rounded-full hover:bg-primary-50 hover:text-primary-700 transition-colors">
@@ -232,6 +237,18 @@ const AccountPage = () => {
                         >
                             Cancel Anytime
                         </button>
+                    </div>
+                ) : (profile?.subscribed_until && new Date(profile.subscribed_until) > new Date()) ? (
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-red-50/50 border border-red-100 rounded-xl p-4">
+                        <div>
+                            <p className="text-sm font-bold text-red-700 flex items-center gap-2 mb-1">
+                                <AlertCircle size={16} /> Cancelled
+                            </p>
+                            <p className="text-xs text-red-600/80">Premium access ends on <strong>{new Date(profile.subscribed_until).toLocaleDateString()}</strong>.</p>
+                        </div>
+                        <div className="shrink-0 px-4 py-2 border border-orange-200 text-orange-600 bg-orange-50/50 text-xs font-black rounded-xl cursor-not-allowed uppercase tracking-widest whitespace-nowrap">
+                            Available {new Date(profile.subscribed_until).toLocaleDateString()}
+                        </div>
                     </div>
                 ) : (
                     <div>

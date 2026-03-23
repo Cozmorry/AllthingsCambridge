@@ -214,20 +214,37 @@ create policy "Public can read forum posts" on forum_posts for
 select using (true);
 create policy "Public can read forum replies" on forum_replies for
 select using (true);
+-- Security Definer function to check admin role without recursion issues
+create or replace function is_admin() returns boolean language plpgsql security definer
+set search_path = public as $$ 
+declare
+  active_user_id uuid;
+begin
+  active_user_id := auth.uid();
+  
+  -- Bridge Passkey logic: Trust the custom header check if no JWT is present
+  if active_user_id is null then
+    begin
+      active_user_id := (current_setting('request.headers', true)::json->>'x-passkey-user')::uuid;
+    exception when others then
+      active_user_id := null;
+    end;
+  end if;
+
+  return (
+    select (role = 'admin')
+    from public.profiles
+    where id = active_user_id
+  );
+end;
+$$;
 -- Profiles
 create policy "Users can read own profile" on profiles for
 select using (auth.uid() = id);
 create policy "Users can update own profile" on profiles for
 update using (auth.uid() = id);
 create policy "Admins can read all profiles" on profiles for
-select using (
-        exists (
-            select 1
-            from profiles
-            where id = auth.uid()
-                and role = 'admin'
-        )
-    );
+select using (is_admin());
 -- User can write own flashcard progress
 create policy "User manages own progress" on user_flashcard_progress for all using (auth.uid() = user_id);
 -- Users can post to forums
@@ -298,14 +315,7 @@ create policy "Admins full access on blog" on blog_posts for all using (
     )
 );
 create policy "Admins read all payments" on payments for
-select using (
-        exists (
-            select 1
-            from profiles
-            where id = auth.uid()
-                and role = 'admin'
-        )
-    );
+select using (is_admin());
 -- ========================================================
 -- Storage bucket
 -- ========================================================

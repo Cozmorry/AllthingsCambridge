@@ -16,7 +16,7 @@ const tabs = [
 
 const SubjectPage = () => {
     const { levelSlug, subjectSlug } = useParams()
-    const { isSubscribed } = useAuth()
+    const { hasPremiumAccess } = useAuth()
     const [searchParams, setSearchParams] = useSearchParams()
     const urlTab = searchParams.get('tab')
 
@@ -89,7 +89,7 @@ const SubjectPage = () => {
     if (loading) return <PageLoader />
     if (!subject) return <div className="p-32 text-center text-gray-500 font-bold">RESOURCE NOT FOUND</div>
 
-    const isLocked = subject.is_premium && !isSubscribed
+    const isLocked = subject.is_premium && !hasPremiumAccess
 
     return (
         <div className="min-h-screen bg-gray-50/50">

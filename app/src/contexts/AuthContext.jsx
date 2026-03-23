@@ -131,7 +131,7 @@ export const AuthProvider = ({ children }) => {
         return { data, error }
     }
 
-    const signInWithPasskeyMock = async (userId) => {
+    const signInWithPasskey = async (userId) => {
         try {
             let prof = await fetchProfileData(userId)
             
@@ -155,9 +155,9 @@ export const AuthProvider = ({ children }) => {
                 return { error: { message: "Passkeys are not explicitly enabled for this physical device." } }
             }
             
+            import('../lib/supabase').then(m => m.setPasskeyHeader(userId))
             setUser({ id: userId, email: prof.email || authenticEmail })
             setProfile(prof)
-            localStorage.setItem('mock_passkey_session', userId)
             return { error: null }
         } catch (err) {
             return { error: err }
@@ -170,9 +170,9 @@ export const AuthProvider = ({ children }) => {
         } catch (error) {
             console.error("Sign out error:", error)
         } finally {
+            import('../lib/supabase').then(m => m.setPasskeyHeader(null))
             setUser(null)
             setProfile(null)
-            localStorage.removeItem('mock_passkey_session')
             // Hard flush local storage just in case Supabase got stuck
             for (let key in localStorage) {
                 if (key.startsWith('sb-') && key.endsWith('-auth-token')) {
@@ -190,15 +190,20 @@ export const AuthProvider = ({ children }) => {
 
     const refreshProfile = async () => {
         if (!user) return
-        const prof = await fetchProfileData(user.id)
+        let prof = await fetchProfileData(user.id)
+        if (!prof) {
+            const cached = localStorage.getItem(`cached_profile_${user.id}`)
+            if (cached) prof = JSON.parse(cached)
+        }
         setProfile(prof)
     }
 
     const isAdmin = profile?.role === 'admin'
     const isSubscribed = profile?.is_subscribed === true
+    const hasPremiumAccess = isSubscribed || (profile?.subscribed_until && new Date(profile.subscribed_until) > new Date())
 
     return (
-        <AuthContext.Provider value={{ user, profile, loading, isAdmin, isSubscribed, signUp, signIn, signInWithPasskeyMock, signOut, resetPassword, refreshProfile }}>
+        <AuthContext.Provider value={{ user, profile, loading, isAdmin, isSubscribed, hasPremiumAccess, signUp, signIn, signInWithPasskey, signOut, resetPassword, refreshProfile }}>
             {children}
         </AuthContext.Provider>
     )

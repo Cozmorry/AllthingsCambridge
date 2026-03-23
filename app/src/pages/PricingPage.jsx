@@ -1,4 +1,5 @@
 import { useAuth } from '../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 import { Check, CheckCircle, Shield } from 'lucide-react'
 
 const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY
@@ -7,10 +8,10 @@ const plans = [
     {
         id: 'free',
         label: 'Free',
-        price: 'Free Forever',
+        price: 'Basic Access',
         priceRaw: 0,
         period: '',
-        features: ['Access to Free Notes', 'Community Forums', 'Basic Flashcards'],
+        features: ['5 Free Resource Views', 'Access to Free Notes', 'Community Forums', 'Basic Flashcards'],
         popular: false,
     },
     {
@@ -38,6 +39,10 @@ const plans = [
 
 const PricingPage = () => {
     const { user, profile, isSubscribed } = useAuth()
+    const navigate = useNavigate()
+    
+    // Check if user has an active-but-cancelled subscription (grace period)
+    const isGracePeriod = !isSubscribed && profile?.subscribed_until && new Date(profile.subscribed_until) > new Date()
 
     const initPaystack = (plan) => {
         if (!user) return window.location.href = '/signup'
@@ -108,14 +113,14 @@ const PricingPage = () => {
 
                             <button
                                 onClick={() => plan.priceRaw === 0 ? (!user ? window.location.href = '/signup' : window.location.href = '/account') : initPaystack(plan)}
-                                disabled={(isSubscribed && plan.priceRaw > 0) || (user && plan.priceRaw === 0 && !isSubscribed)}
+                                disabled={(isSubscribed && plan.priceRaw > 0) || (isGracePeriod && plan.priceRaw > 0) || (user && plan.priceRaw === 0 && !isSubscribed)}
                                 className={`w-full py-4 rounded-2xl font-black text-base lg:text-lg transition-all shadow-xl ${plan.popular
                                         ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-600/30'
                                         : plan.priceRaw === 0 ? 'bg-white border-2 border-gray-100 text-gray-900 hover:bg-gray-50 shadow-none' : 'bg-gray-900 hover:bg-gray-800 text-white shadow-gray-900/30'
                                     } disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider`}
                             >
-                                {isSubscribed && plan.priceRaw > 0 
-                                    ? 'Active' 
+                                { (isSubscribed || isGracePeriod) && plan.priceRaw > 0 
+                                    ? (isGracePeriod ? `Active until ${new Date(profile.subscribed_until).toLocaleDateString()}` : 'Active')
                                     : plan.priceRaw === 0 
                                         ? (user ? (isSubscribed ? 'Included' : 'Current Plan') : 'Join Free') 
                                         : `Get ${plan.label}`}

@@ -27,7 +27,22 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
         lock: noopLock,
         persistSession: true,
         autoRefreshToken: true,
+    },
+    global: {
+        headers: {
+            'x-passkey-user': localStorage.getItem('passkey_active_session') || ''
+        }
     }
 })
+
+// Function to dynamically update headers after passkey verification
+export const setPasskeyHeader = (userId) => {
+    if (userId) localStorage.setItem('passkey_active_session', userId)
+    else localStorage.removeItem('passkey_active_session')
+    
+    // Refresh client headers
+    supabase.rest.headers['x-passkey-user'] = userId || ''
+}
+
 export { isConfigured as supabaseConfigured }
 

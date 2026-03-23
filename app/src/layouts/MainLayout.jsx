@@ -300,7 +300,7 @@ const MainLayout = () => {
                                     <img src={profile.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm" />
                                 ) : (
                                     <div className="w-7 h-7 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-xs">
-                                        {profile?.full_name?.[0]?.toUpperCase() ?? 'U'}
+                                        {profile?.full_name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? 'U'}
                                     </div>
                                 )}
                                 {profile?.is_subscribed && <Crown size={14} className="text-secondary-500" />}

@@ -19,40 +19,24 @@ const PaymentCallbackPage = () => {
             // Determine the accurate USD amount (in cents) based on the plan selected checkout
             const accurateAmount = planFromUrl === 'annual' ? 9999 : 999
 
-            // Detect if this is a secure front-end simulated Passkey session where Supabase inherently lacks an API token.
-            const isMockSession = localStorage.getItem('mock_passkey_session')
-            
             let paymentError = null
 
-            if (!isMockSession) {
-                // Record Payment in authentic DB session
-                const { error } = await supabase.from('payments').insert({
-                    user_id: user.id,
-                    paystack_reference: reference,
-                    status: 'success',
-                    plan: planFromUrl,
-                    amount: accurateAmount,
-                })
-                paymentError = error
-            }
+            // Record Payment in authentic DB session
+            const { error } = await supabase.from('payments').insert({
+                user_id: user.id,
+                paystack_reference: reference,
+                status: 'success',
+                plan: planFromUrl,
+                amount: accurateAmount,
+            })
+            paymentError = error
 
             if (!paymentError) {
-                if (!isMockSession) {
-                    // Mark user as subscribed in real DB
-                    await supabase.from('profiles').update({
-                        is_subscribed: true,
-                        subscribed_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-                    }).eq('id', user.id)
-                } else {
-                    // Spoof subscription locally for Passkey bypass tests
-                    const cachedStr = localStorage.getItem(`cached_profile_${user.id}`)
-                    if (cachedStr) {
-                        const cached = JSON.parse(cachedStr)
-                        cached.is_subscribed = true
-                        cached.subscribed_until = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
-                        localStorage.setItem(`cached_profile_${user.id}`, JSON.stringify(cached))
-                    }
-                }
+                // Mark user as subscribed in real DB
+                await supabase.from('profiles').update({
+                    is_subscribed: true,
+                    subscribed_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                }).eq('id', user.id)
 
                 setStatus('success')
                 setTimeout(() => navigate('/account'), 3000)
