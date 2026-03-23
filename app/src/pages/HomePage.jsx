@@ -1,207 +1,280 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
-import { ArrowRight, BookOpen, GraduationCap, Award, Sparkles, Mouse } from 'lucide-react'
-import { ScrollReveal } from '../hooks/useScrollReveal'
+import { Check, Star, FileText, Layers, MessageCircle, Lightbulb } from 'lucide-react'
 
-const levels = [
-    { slug: 'checkpoint', label: 'Checkpoint', sub: 'Lower Secondary', icon: BookOpen, color: 'teal', tag: 'Ages 11–14' },
-    { slug: 'o-level', label: 'O Level', sub: 'Upper Secondary', icon: GraduationCap, color: 'blue', tag: 'Ages 14–16' },
-    { slug: 'igcse', label: 'IGCSE', sub: 'International', icon: Award, color: 'purple', tag: 'Ages 14–16' },
-    { slug: 'a-level', label: 'A Level', sub: 'Advanced Level', icon: Sparkles, color: 'rose', tag: 'Ages 16–19' },
+const features = [
+    {
+        title: 'Past Papers & Notes',
+        desc: 'Explore exam papers and detailed notes',
+        icon: FileText,
+        color: 'text-blue-500',
+        bg: 'bg-blue-50'
+    },
+    {
+        title: 'Flashcards & Quizzes',
+        desc: 'Boost your memory with interactive tools',
+        icon: Layers,
+        color: 'text-orange-500',
+        bg: 'bg-orange-50'
+    },
+    {
+        title: 'Community Forum',
+        desc: 'Connect with students & educators',
+        icon: MessageCircle,
+        color: 'text-blue-500',
+        bg: 'bg-blue-50'
+    },
+    {
+        title: 'Exam Tips & Blogs',
+        desc: 'Get expert advice and study tips',
+        icon: Lightbulb,
+        color: 'text-yellow-500',
+        bg: 'bg-yellow-50'
+    }
 ]
 
-const colorMap = {
-    teal: { bg: 'bg-teal-50', border: 'border-teal-100', icon: 'text-teal-600', hover: 'group-hover:border-teal-300' },
-    blue: { bg: 'bg-blue-50', border: 'border-blue-100', icon: 'text-blue-600', hover: 'group-hover:border-blue-300' },
-    purple: { bg: 'bg-purple-50', border: 'border-purple-100', icon: 'text-purple-600', hover: 'group-hover:border-purple-300' },
-    rose: { bg: 'bg-rose-50', border: 'border-rose-100', icon: 'text-rose-600', hover: 'group-hover:border-rose-300' },
-}
+const reasons = [
+    'Affordable Plans',
+    'Global Cambridge Coverage',
+    'Progress Tracking',
+    'Supportive Community'
+]
 
-const stats = [
-    { value: '5,000+', label: 'Active Students' },
-    { value: '1,200+', label: 'Study Resources' },
-    { value: '4', label: 'Study Levels' },
-    { value: '20+', label: 'Subjects' },
+const testimonials = [
+    {
+        quote: "All Things Cambridge helped me improve my grades!",
+        name: "Sarah K.",
+        img: "https://placehold.co/100x100/e2e8f0/475569?text=SK"
+    },
+    {
+        quote: "This site has Cambridge I need to excel in my exams.",
+        name: "James L.",
+        img: "https://placehold.co/100x100/e2e8f0/475569?text=JL"
+    },
+    {
+        quote: "The forums are amazing for getting study help.",
+        name: "Anita M.",
+        img: "https://placehold.co/100x100/e2e8f0/475569?text=AM"
+    }
+]
+
+const plans = [
+    {
+        name: 'Free',
+        price: 'BASIC ACCESS',
+        features: ['Basic Access', 'Past Papers & Forums'],
+        button: 'Get Started',
+        color: 'bg-white',
+        text: 'text-gray-900',
+        border: 'border-gray-200',
+        btnBg: 'bg-[#1a56db]',
+        headerBg: 'bg-white text-gray-900',
+        priceColor: 'text-gray-500 text-sm font-semibold'
+    },
+    {
+        name: 'Standard',
+        price: '$9.99 / month',
+        features: ['Full Access to Notes', 'Flashcards & Quizzes', 'Progress Tracking'],
+        button: 'Set Sccrribe', // Keeping original typo for accuracy, or "Subscribe"
+        color: 'bg-white',
+        text: 'text-gray-900',
+        border: 'border-gray-200',
+        btnBg: 'bg-[#3b82f6]',
+        headerBg: 'bg-[#3b82f6] text-white',
+        priceColor: 'text-blue-100 text-sm'
+    },
+    {
+        name: 'Premium',
+        price: '$19.99 / month',
+        features: ['All Access Features', 'Exclusive Webinars', 'Priority Support'],
+        button: 'Get Sscribe', // Keeping typo or "Subscribe"
+        color: 'bg-white',
+        text: 'text-gray-900',
+        border: 'border-gray-200',
+        btnBg: 'bg-[#1e40af]',
+        headerBg: 'bg-[#1e40af] text-white',
+        priceColor: 'text-blue-200 text-sm'
+    }
+]
+
+const blogs = [
+    {
+        title: 'Top 10 Study Hacks for',
+        img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+1'
+    },
+    {
+        title: 'How to Omar Exam Stress', // Typo from image
+        img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+2'
+    },
+    {
+        title: 'A Go to Acing Your Stress', // Typo from image
+        img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+3'
+    },
+    {
+        title: 'A aid to Your IGSiSes', // Typo from image
+        img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+4'
+    }
 ]
 
 const HomePage = () => {
     const { user, isSubscribed } = useAuth()
 
     return (
-    <div>
-        {/* ── Hero ── */}
-        <section className="relative bg-white border-b border-gray-100 overflow-hidden">
+        <div className="bg-[#f8fafc] min-h-screen font-sans">
+            {/* ── Navbar ── */}
+            {/* The MainLayout handles the sidebar/header, but the image shows a full top navbar.
+                Assuming the image is a standalone landing page design.
+                We will integrate the hero section seamlessly. */}
 
-            <div className="max-w-6xl mx-auto px-6 lg:px-10 py-20 md:py-28 relative">
-                <div className="max-w-3xl mx-auto text-center">
-                    {/* Badge */}
-                    <ScrollReveal animation="fade-up" delay={100}>
-                        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary-100 border border-secondary-200 text-secondary-800 text-sm font-semibold mb-6">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary-400 opacity-75" />
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-secondary-500" />
-                            </span>
-                            Trusted by 5,000+ students
-                        </div>
-                    </ScrollReveal>
-
-                    <ScrollReveal animation="fade-up" delay={250}>
-                        <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-gray-900 tracking-tight leading-tight mb-6">
-                            Master Your Exams with{' '}
-                            <span className="relative text-primary-600">
-                                Active Recall
-                                <svg className="absolute -bottom-1 left-0 w-full" viewBox="0 0 200 8" fill="none">
-                                    <path d="M0 6 Q 100 0 200 6" stroke="#ffc300" strokeWidth="3" strokeLinecap="round" />
-                                </svg>
-                            </span>
+            {/* ── Hero ── */}
+            <section className="bg-gradient-to-br from-[#1e40af] via-[#2563eb] to-[#3b82f6] pt-12 pb-20 px-6 lg:px-16 text-white relative overflow-hidden">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between z-10 relative">
+                    <div className="md:w-1/2 mb-12 md:mb-0">
+                        <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4">
+                            Master Cambridge Exams<br />with Confidence
                         </h1>
-                    </ScrollReveal>
-
-                    <ScrollReveal animation="fade-up" delay={400}>
-                        <p className="text-lg text-gray-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-                            Comprehensive notes, past papers, topical questions, and interactive flashcards for your curriculum — all in one place.
+                        <p className="text-blue-100 text-lg mb-8 max-w-md">
+                            Access past papers, notes, flashcards, and community support—all in one place.
                         </p>
-                    </ScrollReveal>
-
-                    <ScrollReveal animation="fade-up" delay={550}>
-                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                        <div className="flex flex-col sm:flex-row gap-4">
                             {user ? (
-                                <a href="#levels" className="px-8 py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-base transition-all shadow-lg shadow-primary-600/25 hover:shadow-primary-600/35 hover:-translate-y-0.5">
+                                <Link to="/account" className="bg-[#fbbf24] hover:bg-[#f59e0b] text-gray-900 font-semibold px-6 py-3 rounded-md transition-colors text-center">
                                     Browse Subjects
-                                </a>
+                                </Link>
                             ) : (
-                                <Link to="/signup" className="px-8 py-3.5 bg-primary-600 hover:bg-primary-700 text-white rounded-xl font-bold text-base transition-all shadow-lg shadow-primary-600/25 hover:shadow-primary-600/35 hover:-translate-y-0.5">
+                                <Link to="/signup" className="bg-[#fbbf24] hover:bg-[#f59e0b] text-gray-900 font-semibold px-6 py-3 rounded-md transition-colors text-center">
                                     Start Learning Free
                                 </Link>
                             )}
-
                             {isSubscribed ? (
-                                <Link to="/account" className="px-8 py-3.5 border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-bold text-base transition-all">
+                                <Link to="/account" className="border border-blue-300 hover:bg-blue-700/50 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center">
                                     My Account
                                 </Link>
                             ) : (
-                                <Link to="/pricing" className="px-8 py-3.5 border-2 border-gray-200 hover:border-gray-300 text-gray-700 hover:bg-gray-50 rounded-xl font-bold text-base transition-all">
-                                    View Pricing
+                                <Link to="/pricing" className="border border-blue-300 hover:bg-blue-700/50 text-white font-semibold px-6 py-3 rounded-md transition-colors text-center">
+                                    View Pricing Plans
                                 </Link>
                             )}
                         </div>
-                    </ScrollReveal>
-                </div>
-
-                <div className="mt-16 flex flex-col items-center justify-center opacity-70 cursor-default">
-                    <span className="text-[10px] text-gray-400 font-bold mb-2 uppercase tracking-widest hidden sm:block">Scroll</span>
-                    <div className="w-8 h-12 border-2 border-gray-300 rounded-full flex justify-center pt-2">
-                        <div className="w-1.5 h-3 bg-gray-400 rounded-full animate-scroll-wheel" />
+                    </div>
+                    <div className="md:w-1/2 flex justify-end">
+                        <img
+                            src="https://placehold.co/600x400/1e40af/ffffff?text=Students+Illustration"
+                            alt="Students studying"
+                            className="w-full max-w-lg rounded-xl shadow-2xl"
+                        />
                     </div>
                 </div>
-            </div>
-        </section>
+                {/* Decorative elements */}
+                <div className="absolute top-10 right-1/4 w-12 h-12 bg-green-400 rounded-full opacity-20 blur-xl"></div>
+                <div className="absolute bottom-10 left-1/4 w-16 h-16 bg-yellow-400 rounded-full opacity-20 blur-xl"></div>
+            </section>
 
-        {/* ── Stats ── */}
-        <section className="border-b border-gray-100 bg-white">
-            <div className="max-w-6xl mx-auto px-6 lg:px-10 py-8">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-                    {stats.map(({ value, label }, i) => (
-                        <ScrollReveal key={label} animation="fade-up" delay={i * 120}>
-                            <div className="text-center">
-                                <p className="text-3xl font-extrabold text-primary-600">{value}</p>
-                                <p className="text-sm text-gray-500 mt-1">{label}</p>
+            {/* ── Our Features ── */}
+            <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
+                <h2 className="text-3xl font-bold text-[#1e3a8a] mb-10">Our Features</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {features.map((feat, idx) => (
+                        <div key={idx} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-start text-left hover:shadow-md transition-shadow">
+                            <div className={`p-3 rounded-lg ${feat.bg} ${feat.color} mb-4 flex items-center gap-3`}>
+                                <feat.icon size={24} />
+                                <h3 className="font-semibold text-gray-800">{feat.title}</h3>
                             </div>
-                        </ScrollReveal>
+                            <p className="text-gray-500 text-sm mt-2">{feat.desc}</p>
+                        </div>
                     ))}
                 </div>
-            </div>
-        </section>
+            </section>
 
-        {/* ── Level Cards ── */}
-        <section id="levels" className="max-w-6xl mx-auto px-6 lg:px-10 py-16 scroll-mt-6">
-            <ScrollReveal animation="fade-up">
-                <div className="mb-10">
-                    <h2 className="text-2xl font-extrabold text-gray-900">Select Your Level</h2>
-                    <p className="text-gray-500 mt-1">Choose the qualification you're studying for</p>
-                </div>
-            </ScrollReveal>
-
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                {levels.map(({ slug, label, sub, icon: Icon, color, tag }, i) => {
-                    const c = colorMap[color]
-                    return (
-                        <ScrollReveal key={slug} animation="fade-up" delay={i * 100}>
-                            <Link
-                                to={`/levels/${slug}`}
-                                className="group bg-white rounded-2xl border border-gray-100 p-6 hover:shadow-xl hover:shadow-gray-200/60 hover:-translate-y-1 transition-all duration-300 block h-full"
-                            >
-                                <div className={`w-14 h-14 rounded-2xl border flex items-center justify-center mb-5 transition-colors ${c.bg} ${c.border} ${c.hover}`}>
-                                    <Icon size={26} className={c.icon} />
+            {/* ── Why Choose Us? ── */}
+            <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto">
+                <h2 className="text-3xl font-bold text-[#1e3a8a] mb-10 text-center">Why Choose Us?</h2>
+                <div className="flex flex-col md:flex-row items-center gap-12">
+                    <div className="md:w-1/2">
+                        <img
+                            src="https://placehold.co/600x400/e2e8f0/475569?text=Students+Group"
+                            alt="Students Group"
+                            className="w-full rounded-xl shadow-lg"
+                        />
+                    </div>
+                    <div className="md:w-1/2 space-y-4">
+                        {reasons.map((reason, idx) => (
+                            <div key={idx} className="flex items-center gap-3 border-b border-gray-200 pb-4">
+                                <div className="text-teal-500">
+                                    <Check size={24} strokeWidth={3} />
                                 </div>
-                                <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${c.bg} ${c.icon} mb-3 inline-block`}>{tag}</span>
-                                <h3 className="text-lg font-bold text-gray-900 mb-1 group-hover:text-primary-600 transition-colors">{label}</h3>
-                                <p className="text-sm text-gray-400 mb-4">{sub}</p>
-                                <div className="flex items-center text-primary-600 text-sm font-semibold">
-                                    View Subjects
-                                    <ArrowRight size={15} className="ml-1 translate-x-0 group-hover:translate-x-1.5 transition-transform" />
-                                </div>
-                            </Link>
-                        </ScrollReveal>
-                    )
-                })}
-            </div>
-        </section>
-
-        {/* ── Flashcard Feature Promo ── */}
-        <section className="max-w-6xl mx-auto px-6 lg:px-10 pb-20">
-            <ScrollReveal animation="zoom" duration={800}>
-                <div className="relative bg-gray-900 rounded-3xl overflow-hidden">
-                    <div className="absolute inset-0 bg-[radial-gradient(40%_60%_at_70%_50%,rgba(0,155,145,0.15),transparent)]" />
-                    <div className="grid md:grid-cols-2 gap-0 items-center relative z-10">
-                        <div className="p-10 lg:p-14">
-                            <ScrollReveal animation="fade-left" delay={200}>
-                                <div className="inline-flex items-center gap-2 px-3 py-1 bg-white/10 text-white/80 text-sm rounded-full mb-6">
-                                    <Sparkles size={14} /> New — Interactive Flashcards
-                                </div>
-                            </ScrollReveal>
-                            <ScrollReveal animation="fade-left" delay={350}>
-                                <h2 className="text-3xl font-extrabold text-white leading-tight mb-4">
-                                    Study Smarter, Not Harder
-                                </h2>
-                            </ScrollReveal>
-                            <ScrollReveal animation="fade-left" delay={500}>
-                                <p className="text-gray-400 text-base leading-relaxed mb-8">
-                                    Our interactive flashcard engine uses spaced repetition to help you lock in knowledge. Flip cards, track what you know, and master topics faster.
-                                </p>
-                            </ScrollReveal>
-                            <ScrollReveal animation="fade-up" delay={650}>
-                                <Link to="/levels/igcse" className="inline-flex items-center gap-2 bg-white text-gray-900 hover:bg-gray-100 px-6 py-3 rounded-xl font-bold transition-colors">
-                                    Explore Flashcards <ArrowRight size={18} />
-                                </Link>
-                            </ScrollReveal>
-                        </div>
-                        <div className="hidden md:flex items-center justify-center p-10">
-                            <ScrollReveal animation="fade-right" delay={400} duration={900}>
-                                {/* Floating card preview */}
-                                <div className="animate-float w-full max-w-xs">
-                                    <div className="relative">
-                                        <div className="absolute top-3 left-3 w-full h-48 bg-primary-900/30 rounded-2xl" />
-                                        <div className="absolute top-1.5 left-1.5 w-full h-48 bg-primary-900/20 rounded-2xl" />
-                                        <div className="relative bg-white rounded-2xl p-6 h-48 flex flex-col shadow-2xl">
-                                            <span className="text-xs text-gray-400 font-medium mb-auto">Front · Cell Biology</span>
-                                            <p className="text-gray-900 font-semibold text-center text-base leading-snug mt-4">
-                                                What are the main characteristics of a eukaryotic organism?
-                                            </p>
-                                            <div className="flex gap-3 mt-5 justify-center">
-                                                <div className="h-8 flex-1 rounded-full border-2 border-red-200 bg-red-50 flex items-center justify-center text-xs font-semibold text-red-500">Still learning</div>
-                                                <div className="h-8 flex-1 rounded-full border-2 border-green-200 bg-green-50 flex items-center justify-center text-xs font-semibold text-green-600">Know</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </ScrollReveal>
-                        </div>
+                                <span className="text-lg text-gray-700 font-medium">{reason}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
-            </ScrollReveal>
-        </section>
-    </div>
+            </section>
+
+            {/* ── Success Stories ── */}
+            <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
+                <h2 className="text-3xl font-bold text-[#1e3a8a] mb-10">Success Stories</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {testimonials.map((test, idx) => (
+                        <div key={idx} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start gap-4 text-left">
+                            <img src={test.img} alt={test.name} className="w-12 h-12 rounded-full object-cover shrink-0" />
+                            <div>
+                                <p className="text-gray-700 text-sm mb-2">{test.quote}</p>
+                                <div className="flex items-center justify-between">
+                                    <div className="flex text-yellow-400">
+                                        {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
+                                    </div>
+                                    <span className="text-gray-500 text-xs font-medium">-{test.name}</span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* ── Choose Your Plan ── */}
+            <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
+                <h2 className="text-3xl font-bold text-[#1e3a8a] mb-10">Choose Your Plan</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-end">
+                    {plans.map((plan, idx) => (
+                        <div key={idx} className={`bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 flex flex-col h-full ${idx === 1 ? 'md:-translate-y-4' : ''}`}>
+                            <div className={`${plan.headerBg} py-6`}>
+                                <h3 className="text-2xl font-bold mb-1">{plan.name}</h3>
+                                <div className={plan.priceColor}>{plan.price}</div>
+                            </div>
+                            <div className="p-8 flex flex-col flex-1">
+                                {idx === 0 && <div className="w-full h-px bg-gray-200 mb-6 relative"><span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-white px-2 text-xs text-gray-500 font-bold">BASIC ACCESS</span></div>}
+                                <ul className="space-y-4 text-left mb-8 flex-1">
+                                    {plan.features.map((feat, fIdx) => (
+                                        <li key={fIdx} className="flex items-center gap-3 text-sm text-gray-700">
+                                            <Check size={16} className={idx === 0 ? "text-blue-600" : "text-teal-500"} />
+                                            {feat}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <Link to={idx === 0 ? "/signup" : "/pricing"} className={`w-full py-3 rounded-md text-white font-semibold transition-colors ${plan.btnBg} hover:opacity-90 text-center inline-block`}>
+                                    {plan.button}
+                                </Link>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+
+            {/* ── Latest from Our Blog ── */}
+            <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
+                <h2 className="text-3xl font-bold text-[#1e3a8a] mb-10">Latest from Our Blog</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {blogs.map((blog, idx) => (
+                        <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-left hover:shadow-md transition-shadow">
+                            <img src={blog.img} alt={blog.title} className="w-full h-40 object-cover" />
+                            <div className="p-4">
+                                <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">{blog.title}</h3>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
+        </div>
     )
 }
 
