@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { Check, Star, FileText, Layers, MessageCircle, Lightbulb } from 'lucide-react'
@@ -14,22 +15,22 @@ const features = [
         title: 'Flashcards & Quizzes',
         desc: 'Boost your memory with interactive tools',
         icon: Layers,
-        color: 'text-secondary-600',
-        bg: 'bg-secondary-50'
+        color: 'text-orange-600',
+        bg: 'bg-orange-50'
     },
     {
         title: 'Community Forum',
         desc: 'Connect with students & educators',
         icon: MessageCircle,
-        color: 'text-primary-600',
-        bg: 'bg-primary-50'
+        color: 'text-primary-700',
+        bg: 'bg-primary-100'
     },
     {
         title: 'Exam Tips & Blogs',
         desc: 'Get expert advice and study tips',
         icon: Lightbulb,
-        color: 'text-secondary-600',
-        bg: 'bg-secondary-50'
+        color: 'text-yellow-600',
+        bg: 'bg-yellow-50'
     }
 ]
 
@@ -44,17 +45,17 @@ const testimonials = [
     {
         quote: "All Things Cambridge helped me improve my grades!",
         name: "Sarah K.",
-        img: "https://placehold.co/100x100/e2e8f0/475569?text=SK"
+        img: "https://placehold.co/100x100/3b46ff/ffffff?text=SK"
     },
     {
         quote: "This site has Cambridge I need to excel in my exams.",
         name: "James L.",
-        img: "https://placehold.co/100x100/e2e8f0/475569?text=JL"
+        img: "https://placehold.co/100x100/3b46ff/ffffff?text=JL"
     },
     {
         quote: "The forums are amazing for getting study help.",
         name: "Anita M.",
-        img: "https://placehold.co/100x100/e2e8f0/475569?text=AM"
+        img: "https://placehold.co/100x100/3b46ff/ffffff?text=AM"
     }
 ]
 
@@ -62,169 +63,185 @@ const plans = [
     {
         name: 'Free',
         price: 'BASIC ACCESS',
-        features: ['Basic Access', 'Past Papers & Forums'],
+        features: ['Access to Free Notes', 'Community Forums', 'Basic Flashcards'],
         button: 'Get Started',
         color: 'bg-white',
         text: 'text-gray-900',
-        border: 'border-gray-200',
+        border: 'border-gray-100',
         btnBg: 'bg-primary-600',
-        headerBg: 'bg-white text-gray-900',
-        priceColor: 'text-gray-500 text-sm font-semibold'
+        headerBg: 'bg-white text-gray-900 border-b border-gray-100',
+        priceColor: 'text-gray-500 text-sm font-bold'
     },
     {
         name: 'Standard',
         price: '$9.99 / month',
-        features: ['Full Access to Notes', 'Flashcards & Quizzes', 'Progress Tracking'],
-        button: 'Set Subscribe',
+        features: ['Full Access to Notes', 'All Past Papers', 'Flashcards & Quizzes', 'Progress Tracking'],
+        button: 'Subscribe Now',
         color: 'bg-white',
         text: 'text-gray-900',
-        border: 'border-gray-200',
-        btnBg: 'bg-gray-900 text-white',
-        headerBg: 'bg-primary-600 text-white',
+        border: 'border-primary-100',
+        btnBg: 'bg-primary-500',
+        headerBg: 'bg-primary-500 text-white',
         priceColor: 'text-primary-100 text-sm'
     },
     {
         name: 'Premium',
-        price: '$19.99 / month',
-        features: ['All Access Features', 'Exclusive Webinars', 'Priority Support'],
-        button: 'Get Subscribe',
+        price: '$99.99 / year',
+        features: ['Everything in Standard', 'Priority Support', 'Exclusive Webinars', 'Download Materials'],
+        button: 'Subscribe Now',
         color: 'bg-white',
         text: 'text-gray-900',
-        border: 'border-gray-200',
+        border: 'border-primary-200',
         btnBg: 'bg-primary-800',
         headerBg: 'bg-primary-800 text-white',
         priceColor: 'text-primary-200 text-sm'
     }
 ]
 
-const blogs = [
-    {
-        title: 'Top 10 Study Hacks for Cambridge',
-        img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+1'
-    },
-    {
-        title: 'How to Overcome Exam Stress',
-        img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+2'
-    },
-    {
-        title: 'A Guide to Acing Your Exams',
-        img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+3'
-    },
-    {
-        title: 'A Guide to Your IGCSEs',
-        img: 'https://placehold.co/400x250/e2e8f0/475569?text=Blog+4'
-    }
-]
+const BlogSkeleton = () => (
+    <div className="bg-white rounded-3xl shadow-[0_4px_25px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden text-left">
+        <div className="h-48 bg-gray-100 animate-pulse"></div>
+        <div className="p-6 space-y-3">
+            <div className="h-4 bg-gray-100 rounded w-3/4 animate-pulse"></div>
+            <div className="h-4 bg-gray-100 rounded w-1/2 animate-pulse"></div>
+            <div className="w-10 h-1 bg-gray-50 rounded-full"></div>
+        </div>
+    </div>
+)
 
 const HomePage = () => {
     const { user, isSubscribed } = useAuth()
+    const [blogs, setBlogs] = useState([])
+    const [loading, setLoading] = useState(true)
+
+    useEffect(() => {
+        // Simulate loading blogs
+        const timer = setTimeout(() => {
+            setBlogs([
+                {
+                    title: 'Top 10 Study Hacks for Cambridge',
+                    img: 'https://placehold.co/400x250/e2e8f0/475569?text=Study+Hacks'
+                },
+                {
+                    title: 'How to Overcome Exam Stress',
+                    img: 'https://placehold.co/400x250/e2e8f0/475569?text=Exam+Stress'
+                },
+                {
+                    title: 'A Guide to Acing Your Exams',
+                    img: 'https://placehold.co/400x250/e2e8f0/475569?text=Acing+Exams'
+                },
+                {
+                    title: 'A Guide to Your IGCSEs',
+                    img: 'https://placehold.co/400x250/e2e8f0/475569?text=IGCSE+Guide'
+                }
+            ])
+            setLoading(false)
+        }, 1500)
+        return () => clearTimeout(timer)
+    }, [])
 
     return (
-        <div className="bg-[#f8fafc] min-h-screen font-sans">
-            {/* ── Navbar ── */}
-            {/* The MainLayout handles the sidebar/header, but the image shows a full top navbar.
-                Assuming the image is a standalone landing page design.
-                We will integrate the hero section seamlessly. */}
-
+        <div className="bg-white min-h-screen font-sans">
             {/* ── Hero ── */}
-            <section className="bg-gradient-to-b from-primary-600 to-[#f8fafc] pt-12 pb-20 px-6 lg:px-16 text-white relative overflow-hidden -mt-16 sm:-mt-0" style={{ paddingTop: 'calc(3rem + 4rem)' }}>
+            <section className="bg-gradient-to-br from-primary-900 via-primary-700 to-primary-600 pt-44 pb-32 px-6 lg:px-16 text-white relative overflow-hidden">
                 <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between z-10 relative">
-                    <div className="md:w-1/2 mb-12 md:mb-0">
-                        <h1 className="text-4xl md:text-5xl font-bold leading-tight mb-4 text-gray-900 drop-shadow-sm">
+                    <div className="md:w-[55%] mb-12 md:mb-0 animate-fade-up">
+                        <h1 className="text-4xl md:text-5xl lg:text-7xl font-black leading-tight mb-8 tracking-tighter">
                             Master Cambridge Exams<br />with Confidence
                         </h1>
-                        <p className="text-gray-700 font-medium text-lg mb-8 max-w-md">
-                            Access past papers, notes, flashcards, and community support—all in one place.
+                        <p className="text-primary-50 font-medium text-xl mb-12 max-w-xl opacity-90 leading-relaxed">
+                            Access past papers, notes, flashcards, and community support—all in one place with AllThingsCambridge.
                         </p>
-                        <div className="flex flex-col sm:flex-row gap-4">
+                        <div className="flex flex-col sm:flex-row gap-5">
                             {user ? (
-                                <Link to="/account" className="bg-gray-900 hover:bg-black text-white shadow-md font-semibold px-6 py-3 rounded-md transition-colors text-center">
-                                    Browse Subjects
+                                <Link to={isSubscribed ? "/levels/a-level" : "/pricing"} className="bg-yellow-400 hover:bg-yellow-500 text-primary-950 shadow-2xl shadow-yellow-900/20 font-black px-10 py-5 rounded-2xl transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 text-center text-xl">
+                                    {isSubscribed ? "Continue Learning" : "Unlock Premium"}
                                 </Link>
                             ) : (
-                                <Link to="/signup" className="bg-gray-900 hover:bg-black text-white shadow-md font-semibold px-6 py-3 rounded-md transition-colors text-center">
+                                <Link to="/signup" className="bg-yellow-400 hover:bg-yellow-500 text-primary-950 shadow-2xl shadow-yellow-900/20 font-black px-10 py-5 rounded-2xl transition-all transform hover:-translate-y-1 hover:scale-105 active:scale-95 text-center text-xl">
                                     Start Learning Free
                                 </Link>
                             )}
-                            {isSubscribed ? (
-                                <Link to="/account" className="border-2 border-primary-600 text-primary-700 hover:bg-primary-50 font-semibold px-6 py-3 rounded-md transition-colors text-center">
-                                    My Account
-                                </Link>
-                            ) : (
-                                <Link to="/pricing" className="border-2 border-primary-600 text-primary-700 hover:bg-primary-50 font-semibold px-6 py-3 rounded-md transition-colors text-center">
-                                    View Pricing Plans
-                                </Link>
-                            )}
+                            <Link to="/pricing" className="bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/20 text-white font-bold px-10 py-5 rounded-2xl transition-all text-center text-xl">
+                                View Pricing Plans
+                            </Link>
                         </div>
                     </div>
-                    <div className="md:w-1/2 flex justify-end">
+                    <div className="md:w-[45%] flex justify-end animate-float">
                         <img
-                            src="https://placehold.co/600x400/007c74/ffffff?text=Students+Illustration"
+                            src="/hero.png"
                             alt="Students studying"
-                            className="w-full max-w-lg rounded-xl shadow-2xl"
+                            className="w-full max-w-lg drop-shadow-[0_20px_50px_rgba(0,0,0,0.3)]"
                         />
                     </div>
                 </div>
-                {/* Decorative elements */}
-                <div className="absolute top-10 right-1/4 w-12 h-12 bg-primary-200 rounded-full opacity-40 blur-xl"></div>
-                <div className="absolute bottom-10 left-1/4 w-16 h-16 bg-secondary-300 rounded-full opacity-40 blur-xl"></div>
+                {/* Decorative Elements */}
+                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-400/20 rounded-full blur-[120px] -mr-64 -mt-64"></div>
+                <div className="absolute bottom-0 left-0 w-[300px] h-[300px] bg-primary-800/40 rounded-full blur-[100px] -ml-32 -mb-32"></div>
             </section>
 
             {/* ── Our Features ── */}
-            <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
-                <h2 className="text-3xl font-bold text-primary-800 mb-10">Our Features</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <section className="py-28 px-6 lg:px-16 max-w-7xl mx-auto text-center">
+                <h2 className="text-5xl font-black text-primary-950 mb-4">Our Features</h2>
+                <p className="text-gray-500 text-lg mb-20 max-w-2xl mx-auto">Everything you need to excel in your IGCSE, O-Level, and A-Level journey.</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
                     {features.map((feat, idx) => (
-                        <div key={idx} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col items-start text-left hover:shadow-md transition-shadow">
-                            <div className={`p-3 rounded-lg ${feat.bg} ${feat.color} mb-4 flex items-center gap-3`}>
-                                <feat.icon size={24} />
-                                <h3 className="font-semibold text-gray-800">{feat.title}</h3>
+                        <div key={idx} className="group bg-white p-10 rounded-[32px] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.06)] border border-gray-50 flex flex-col items-center text-center hover:shadow-2xl transition-all hover:-translate-y-2">
+                            <div className={`w-20 h-20 rounded-3xl ${feat.bg} ${feat.color} mb-8 flex items-center justify-center transition-transform group-hover:rotate-6 shadow-sm`}>
+                                <feat.icon size={36} strokeWidth={2.5} />
                             </div>
-                            <p className="text-gray-500 text-sm mt-2">{feat.desc}</p>
+                            <h3 className="font-black text-gray-900 text-2xl mb-4">{feat.title}</h3>
+                            <p className="text-gray-500 text-base leading-relaxed">{feat.desc}</p>
                         </div>
                     ))}
                 </div>
             </section>
 
             {/* ── Why Choose Us? ── */}
-            <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto">
-                <h2 className="text-3xl font-bold text-primary-800 mb-10 text-center">Why Choose Us?</h2>
-                <div className="flex flex-col md:flex-row items-center gap-12">
-                    <div className="md:w-1/2">
-                        <img
-                            src="https://placehold.co/600x400/e2e8f0/475569?text=Students+Group"
-                            alt="Students Group"
-                            className="w-full rounded-xl shadow-lg"
-                        />
-                    </div>
-                    <div className="md:w-1/2 space-y-4">
-                        {reasons.map((reason, idx) => (
-                            <div key={idx} className="flex items-center gap-3 border-b border-gray-200 pb-4">
-                                <div className="text-primary-500">
-                                    <Check size={24} strokeWidth={3} />
-                                </div>
-                                <span className="text-lg text-gray-700 font-medium">{reason}</span>
+            <section className="py-28 px-6 lg:px-16 bg-gray-50/50">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex flex-col lg:flex-row items-center gap-20">
+                        <div className="lg:w-1/2 relative">
+                            <div className="absolute -inset-4 bg-primary-200/30 rounded-[40px] blur-2xl"></div>
+                            <img
+                                src="/group.png"
+                                alt="Students Group"
+                                className="relative w-full rounded-[40px] shadow-2xl"
+                            />
+                        </div>
+                        <div className="lg:w-1/2 space-y-10">
+                            <div>
+                                <h2 className="text-5xl font-black text-primary-950 mb-6 leading-tight">Empowering Students<br />Globally</h2>
+                                <p className="text-gray-600 text-lg leading-relaxed">Join thousands of students who have already transformed their learning experience with our platform.</p>
                             </div>
-                        ))}
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                {reasons.map((reason, idx) => (
+                                    <div key={idx} className="flex items-center gap-5 p-5 bg-white rounded-3xl shadow-sm border border-gray-100 group hover:border-primary-200 transition-colors">
+                                        <div className="text-primary-600 bg-primary-50 p-2.5 rounded-2xl group-hover:bg-primary-600 group-hover:text-white transition-all shadow-sm">
+                                            <Check size={24} strokeWidth={4} />
+                                        </div>
+                                        <span className="text-lg text-gray-800 font-black">{reason}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* ── Success Stories ── */}
-            <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
-                <h2 className="text-3xl font-bold text-primary-800 mb-10">Success Stories</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <section className="py-28 px-6 lg:px-16 max-w-7xl mx-auto text-center">
+                <h2 className="text-5xl font-black text-primary-950 mb-20">Success Stories</h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
                     {testimonials.map((test, idx) => (
-                        <div key={idx} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-start gap-4 text-left">
-                            <img src={test.img} alt={test.name} className="w-12 h-12 rounded-full object-cover shrink-0" />
-                            <div>
-                                <p className="text-gray-700 text-sm mb-2">{test.quote}</p>
-                                <div className="flex items-center justify-between">
-                                    <div className="flex text-secondary-500">
-                                        {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="currentColor" />)}
-                                    </div>
-                                    <span className="text-gray-500 text-xs font-medium">-{test.name}</span>
+                        <div key={idx} className="bg-white p-10 rounded-[40px] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col items-center text-center relative hover:shadow-xl transition-shadow">
+                            <img src={test.img} alt={test.name} className="w-24 h-24 rounded-full object-cover mb-8 border-8 border-primary-50 shadow-inner" />
+                            <p className="text-gray-800 text-xl font-bold italic leading-relaxed mb-8">"{test.quote}"</p>
+                            <div className="mt-auto pt-6 border-t border-gray-50 flex items-center flex-col gap-3 w-full">
+                                <div className="flex text-yellow-400 gap-1.5">
+                                    {[...Array(5)].map((_, i) => <Star key={i} size={20} fill="currentColor" />)}
                                 </div>
+                                <span className="text-gray-400 text-sm font-black tracking-widest uppercase">-{test.name}</span>
                             </div>
                         </div>
                     ))}
@@ -232,48 +249,92 @@ const HomePage = () => {
             </section>
 
             {/* ── Choose Your Plan ── */}
-            <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
-                <h2 className="text-3xl font-bold text-primary-800 mb-10">Choose Your Plan</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto items-end">
-                    {plans.map((plan, idx) => (
-                        <div key={idx} className={`bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 flex flex-col h-full ${idx === 1 ? 'md:-translate-y-4' : ''}`}>
-                            <div className={`${plan.headerBg} py-6`}>
-                                <h3 className="text-2xl font-bold mb-1">{plan.name}</h3>
-                                <div className={plan.priceColor}>{plan.price}</div>
+            <section className="py-28 px-6 lg:px-16 bg-gray-900 rounded-[60px] mx-4 lg:mx-10 my-10 overflow-hidden relative">
+                <div className="absolute top-0 right-0 w-[400px] h-[400px] bg-primary-600/10 rounded-full blur-[100px]"></div>
+                <div className="max-w-7xl mx-auto text-center relative z-10">
+                    <h2 className="text-5xl font-black text-white mb-6">Choose Your Plan</h2>
+                    <p className="text-gray-400 text-lg mb-20 max-w-xl mx-auto">Get the best resources for your academic success today.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 max-w-5xl mx-auto items-stretch">
+                        {plans.map((plan, idx) => (
+                            <div key={idx} className={`bg-white rounded-[32px] shadow-2xl overflow-hidden border border-gray-800 flex flex-col transition-all hover:scale-[1.03] ${idx === 1 ? 'md:-translate-y-4 ring-4 ring-primary-500 shadow-primary-500/20' : ''}`}>
+                                <div className={`${plan.headerBg} py-8 px-6 text-center`}>
+                                    <p className={`uppercase tracking-widest font-black text-[10px] mb-3 opacity-70`}>{idx === 0 ?'Free Forever' : idx === 1 ? 'Most Popular' : 'Ultimate Support'}</p>
+                                    <h3 className="text-2xl font-black mb-2">{plan.name}</h3>
+                                    <div className={`font-black text-xl tracking-tight ${plan.priceColor}`}>{plan.price}</div>
+                                </div>
+                                <div className="p-8 flex flex-col flex-1 bg-white">
+                                    <ul className="space-y-4 text-left mb-8 flex-1">
+                                        {plan.features.map((feat, fIdx) => (
+                                            <li key={fIdx} className="flex items-center gap-3 text-gray-700 font-bold text-sm leading-snug">
+                                                <div className="bg-primary-50 p-1.5 rounded-lg text-primary-600 shadow-sm shrink-0">
+                                                    <Check size={16} strokeWidth={4} />
+                                                </div>
+                                                <span>{feat}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <Link to={idx === 0 ? (user ? "/account" : "/signup") : "/pricing"} className={`w-full py-4 rounded-2xl text-white font-black text-base lg:text-lg transition-all ${plan.btnBg} hover:opacity-95 text-center shadow-xl tracking-wider ${user && idx === 0 && !isSubscribed ? 'opacity-50 pointer-events-none' : ''}`}>
+                                        {idx === 0 
+                                            ? (user ? (isSubscribed ? 'Included' : 'Current Plan') : plan.button) 
+                                            : (isSubscribed ? 'Active' : plan.button)}
+                                    </Link>
+                                </div>
                             </div>
-                            <div className="p-8 flex flex-col flex-1">
-                                {idx === 0 && <div className="w-full h-px bg-gray-200 mb-6 relative"><span className="absolute left-1/2 -translate-x-1/2 -top-3 bg-white px-2 text-xs text-gray-500 font-bold">BASIC ACCESS</span></div>}
-                                <ul className="space-y-4 text-left mb-8 flex-1">
-                                    {plan.features.map((feat, fIdx) => (
-                                        <li key={fIdx} className="flex items-center gap-3 text-sm text-gray-700">
-                                            <Check size={16} className="text-primary-500" />
-                                            {feat}
-                                        </li>
-                                    ))}
-                                </ul>
-                                <Link to={idx === 0 ? "/signup" : "/pricing"} className={`w-full py-3 rounded-md text-white font-semibold transition-colors ${plan.btnBg} hover:opacity-90 text-center inline-block`}>
-                                    {plan.button}
-                                </Link>
-                            </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </section>
 
             {/* ── Latest from Our Blog ── */}
-            <section className="py-16 px-6 lg:px-16 max-w-7xl mx-auto text-center">
-                <h2 className="text-3xl font-bold text-primary-800 mb-10">Latest from Our Blog</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {blogs.map((blog, idx) => (
-                        <div key={idx} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden text-left hover:shadow-md transition-shadow">
-                            <img src={blog.img} alt={blog.title} className="w-full h-40 object-cover" />
-                            <div className="p-4">
-                                <h3 className="text-sm font-semibold text-gray-800 line-clamp-2">{blog.title}</h3>
-                            </div>
-                        </div>
-                    ))}
+            <section className="py-28 px-6 lg:px-16 max-w-7xl mx-auto text-center">
+                <div className="flex items-center justify-between mb-20">
+                    <div className="text-left">
+                        <h2 className="text-5xl font-black text-primary-950 mb-4">Latest from Blog</h2>
+                        <p className="text-gray-500 text-lg">Stay updated with study tips and community news.</p>
+                    </div>
+                    <Link to="/blog" className="hidden sm:inline-flex items-center gap-2 px-8 py-4 bg-primary-50 text-primary-700 rounded-2xl font-black hover:bg-primary-100 transition-all">
+                        View All Posts
+                    </Link>
+                </div>
+                
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+                    {loading ? (
+                        [...Array(4)].map((_, i) => <BlogSkeleton key={i} />)
+                    ) : (
+                        blogs.map((blog, idx) => (
+                            <Link to="/blog" key={idx} className="group bg-white rounded-[40px] shadow-[0_4px_30px_rgba(0,0,0,0.03)] border border-gray-100 overflow-hidden text-left hover:shadow-2xl transition-all hover:-translate-y-2">
+                                <div className="relative h-56 overflow-hidden">
+                                    <img src={blog.img} alt={blog.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent"></div>
+                                </div>
+                                <div className="p-8">
+                                    <h3 className="text-xl font-black text-gray-900 line-clamp-2 mb-6 leading-tight group-hover:text-primary-600 transition-colors uppercase tracking-tight">{blog.title}</h3>
+                                    <div className="flex items-center justify-between">
+                                        <div className="w-12 h-1.5 bg-primary-100 rounded-full group-hover:w-full group-hover:bg-primary-500 transition-all duration-500"></div>
+                                        <span className="text-primary-600 font-black text-xs opacity-0 group-hover:opacity-100 transition-opacity ml-4 whitespace-nowrap">Read More</span>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))
+                    )}
                 </div>
             </section>
+
+            {/* ── Footer ── */}
+            <footer className="py-16 bg-white border-t border-gray-50 px-6 lg:px-16 text-center">
+                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+                    <div className="flex items-center gap-3">
+                        <img src="/icon.png" alt="ATC" className="w-8 h-8 rounded-lg" />
+                        <span className="font-black text-xl text-primary-950 tracking-tighter">AllThingsCambridge</span>
+                    </div>
+                    <div className="flex gap-8 text-gray-400 font-bold text-sm">
+                        <Link to="/about" className="hover:text-primary-600">About Us</Link>
+                        <Link to="/contact" className="hover:text-primary-600">Contact</Link>
+                        <Link to="/privacy" className="hover:text-primary-600">Privacy Policy</Link>
+                    </div>
+                    <p className="text-gray-400 text-sm font-bold">&copy; {new Date().getFullYear()} AllThingsCambridge.</p>
+                </div>
+            </footer>
         </div>
     )
 }

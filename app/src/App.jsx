@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
+import { DataProvider } from './contexts/DataContext'
 import { ProtectedRoute, AdminRoute } from './components/ProtectedRoute'
 
 // Layouts
@@ -44,7 +45,8 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <Routes>
+        <DataProvider>
+          <Routes>
 
           {/* ── Auth routes (minimal layout) ── */}
           <Route element={<AuthLayout />}>
@@ -88,6 +90,7 @@ function App() {
           </Route>
 
         </Routes>
+        </DataProvider>
       </AuthProvider>
     </BrowserRouter>
   )

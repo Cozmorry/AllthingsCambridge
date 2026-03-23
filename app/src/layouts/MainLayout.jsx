@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Outlet, Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
+import { useData } from '../contexts/DataContext'
 import {
     Home, FileText, Layers, HelpCircle, BookMarked,
     Users, MessageSquare, Info, Mail, Menu, Moon, Sun,
@@ -42,7 +43,7 @@ function BookOpenIcon(props) {
 
 
 const MainLayout = () => {
-    const [sidebarOpen, setSidebarOpen] = useState(true)
+    const [sidebarOpen, setSidebarOpen] = useState(false)
     const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
     const [activeCategory, setActiveCategory] = useState(null)
 
@@ -50,26 +51,20 @@ const MainLayout = () => {
         if (dark) localStorage.setItem('theme', 'dark')
         else localStorage.setItem('theme', 'light')
     }, [dark])
-    const [levels, setLevels] = useState([])
-    const [subjects, setSubjects] = useState([])
-
     const { user, profile, isAdmin, signOut } = useAuth()
+    const { levels, loading: dataLoading } = useData()
     const location = useLocation()
     const navigate = useNavigate()
     const isStudyMode = location.pathname.includes('/flashcards/')
 
-    // Fetch navigation hierarchy data
-    useEffect(() => {
-        supabase.from('levels').select('*').order('name').then(({ data }) => setLevels(data || []))
-        supabase.from('subjects').select('*').order('name').then(({ data }) => setSubjects(data || []))
-    }, [])
+
 
     return (
         <div className={`flex h-screen overflow-hidden ${dark ? 'dark' : ''} ${location.pathname === '/' ? 'bg-primary-600 dark:bg-[#0c1220]' : 'bg-[#f3f4f9] dark:bg-[#0c1220]'}`}>
             {/* Mobile Backdrop for Primary Sidebar */}
             {sidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-gray-900/50 z-30 lg:hidden transition-opacity"
+                    className="fixed inset-0 bg-gray-900/20 backdrop-blur-sm z-30 transition-opacity"
                     onClick={() => {
                         setSidebarOpen(false)
                         setActiveCategory(null)
@@ -78,7 +73,7 @@ const MainLayout = () => {
             )}
 
             {/* Main Primary Sidebar */}
-            <aside className={`shrink-0 border-r flex flex-col transition-all duration-300 z-40 fixed lg:relative h-full overflow-hidden ${location.pathname === '/' ? 'bg-transparent border-transparent' : 'bg-[#f8fafc] border-[#e5e7eb] dark:bg-[#1e293b] dark:border-gray-800'} ${sidebarOpen ? 'w-[260px] translate-x-0 shadow-2xl lg:shadow-none' : 'w-[260px] -translate-x-full lg:translate-x-0 lg:w-[72px]'
+            <aside className={`shrink-0 border-r flex flex-col transition-all duration-300 z-40 fixed h-full overflow-hidden ${location.pathname === '/' ? 'bg-primary-900/90 backdrop-blur-md border-transparent' : 'bg-[#f8fafc] border-[#e5e7eb] dark:bg-[#1e293b] dark:border-gray-800'} ${sidebarOpen ? 'w-[280px] translate-x-0 shadow-2xl' : 'w-[280px] -translate-x-full'
                 }`}>
                 {/* Logo */}
                 <div className={`h-16 flex items-center px-4 shrink-0 border-b ${location.pathname === '/' ? 'border-transparent' : 'border-[#e5e7eb] dark:border-gray-800'}`}>
@@ -203,23 +198,24 @@ const MainLayout = () => {
                 <>
                     {/* Mobile Backdrop for Secondary Sidebar */}
                     <div
-                        className="fixed inset-0 bg-gray-900/40 z-40 lg:hidden transition-opacity"
+                        className="fixed inset-0 bg-gray-900/10 backdrop-blur-sm z-40 transition-opacity"
                         onClick={() => setActiveCategory(null)}
                     />
-                    <div className="w-[300px] max-w-[80vw] h-full bg-[#f8fafc] border-r border-[#e5e7eb] flex flex-col shrink-0 overflow-y-auto z-50 lg:z-30 shadow-2xl lg:shadow-[4px_0_24px_-12px_rgba(0,0,0,0.1)] transition-all animate-in slide-in-from-left-8 fixed left-0 lg:relative lg:left-0">
-                        <div className="p-5 border-b border-[#e5e7eb] flex items-center justify-between sticky top-0 bg-[#f8fafc] dark:bg-[#1e293b] z-10 shrink-0">
-                            <h2 className="text-lg font-extrabold text-gray-900 dark:text-gray-100 truncate pr-4 capitalize">
+                    <div className={`w-[320px] max-w-[85vw] h-full bg-[#0c1220] border-r border-white/5 flex flex-col shrink-0 overflow-y-auto z-50 shadow-2xl transition-all fixed duration-300 ${sidebarOpen ? 'left-[280px]' : 'left-0'}`}>
+                        <div className="p-6 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0c1220]/80 backdrop-blur-md z-10 shrink-0">
+                            <h2 className="text-xl font-black text-white truncate pr-4 capitalize tracking-tight">
                                 {navSections.flatMap(s => s.items).find(i => i.id === activeCategory)?.label || 'Resources'}
                             </h2>
-                            <button onClick={() => setActiveCategory(null)} className="p-1.5 text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 hover:text-gray-800 rounded-lg transition-colors">
-                                <X size={18} />
+                            <button onClick={() => setActiveCategory(null)} className="p-2 text-white/40 hover:bg-white/10 hover:text-white rounded-xl transition-colors">
+                                <X size={20} />
                             </button>
                         </div>
+
                         <div className="p-4 space-y-6">
-                            {levels.length === 0 ? (
+                            {dataLoading ? (
                                 <div className="space-y-3">
                                     {[1, 2, 3].map(i => (
-                                        <div key={i} className="h-12 bg-gray-100 rounded-xl animate-pulse"></div>
+                                        <div key={i} className="h-12 bg-white/5 rounded-xl animate-pulse"></div>
                                     ))}
                                 </div>
                             ) : (
@@ -229,13 +225,13 @@ const MainLayout = () => {
                                             key={level.id}
                                             to={`/levels/${level.slug}?tab=${activeCategory}`}
                                             onClick={() => {
-                                                setActiveCategory(null) // Close sidebar
-                                                if (window.innerWidth < 1024) setSidebarOpen(false) // Handle mobile
+                                                setActiveCategory(null)
+                                                setSidebarOpen(false)
                                             }}
-                                            className="group flex items-center justify-between px-4 py-3 bg-white border border-gray-100 rounded-xl hover:border-[#2d59ff] hover:shadow-sm transition-all text-[#4b5563] hover:text-[#2d59ff]"
+                                            className="group flex items-center justify-between px-5 py-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-primary-600 hover:border-primary-500 hover:shadow-lg transition-all text-white/70 hover:text-white"
                                         >
-                                            <span className="font-bold text-sm">{level.name}</span>
-                                            <ChevronRight size={16} className="text-gray-300 group-hover:text-[#2d59ff] group-hover:translate-x-0.5 transition-all" />
+                                            <span className="font-bold text-base">{level.name}</span>
+                                            <ChevronRight size={18} className="text-white/20 group-hover:text-white group-hover:translate-x-1 transition-all" />
                                         </Link>
                                     ))}
                                 </div>

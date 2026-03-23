@@ -5,23 +5,34 @@ const PAYSTACK_KEY = import.meta.env.VITE_PAYSTACK_PUBLIC_KEY
 
 const plans = [
     {
-        id: 'monthly',
-        label: 'Monthly',
-        price: '$5',
-        priceRaw: 65000, // 650 KES in cents (approx $5)
-        period: '/month',
-        features: ['Access all subjects', 'All flashcard decks', 'Past papers & notes', 'Topical questions', 'Community access'],
+        id: 'free',
+        label: 'Free',
+        price: 'Free Forever',
+        priceRaw: 0,
+        period: '',
+        features: ['Access to Free Notes', 'Community Forums', 'Basic Flashcards'],
         popular: false,
     },
     {
-        id: 'annual',
-        label: 'Annual',
-        price: '$48',
-        priceRaw: 620000, // 6200 KES in cents (approx $48)
-        period: '/year',
-        save: 'Save $12',
-        features: ['Everything in Monthly', 'Priority support', 'Download resources', 'Early access to new content', 'Study streak tracking'],
+        id: 'monthly',
+        label: 'Standard',
+        price: '$9.99',
+        priceRaw: 130000, 
+        period: '/month',
+        paystackPlanCode: 'PLN_ied29jmbg2ga4ov',
+        features: ['Full Access to Notes', 'All Past Papers', 'Flashcards & Quizzes', 'Progress Tracking'],
         popular: true,
+    },
+    {
+        id: 'annual',
+        label: 'Premium',
+        price: '$99.99',
+        priceRaw: 1300000, 
+        period: '/year',
+        paystackPlanCode: 'PLN_ofb9qld32da9sh5',
+        save: 'Save $20/yr',
+        features: ['Everything in Standard', 'Priority Support', 'Exclusive Webinars', 'Download Materials'],
+        popular: false,
     },
 ]
 
@@ -36,10 +47,11 @@ const PricingPage = () => {
             email: user.email,
             amount: plan.priceRaw,
             currency: 'KES', // Defaulting to KES since the account is Kenyan
+            plan: plan.paystackPlanCode, // This enforces the auto-recurring billing cycle on Paystack
             ref: `ATC-${Date.now()}-${user.id.slice(0, 8)}`,
             metadata: { user_id: user.id, plan: plan.id },
             callback: (response) => {
-                window.location.href = `/payment/callback?reference=${response.reference}`
+                window.location.href = `/payment/callback?reference=${response.reference}&plan=${plan.id}`
             },
             onClose: () => { },
         })
@@ -51,53 +63,62 @@ const PricingPage = () => {
             {/* Load Paystack inline JS */}
             <script async src="https://js.paystack.co/v1/inline.js" />
 
-            <div className="max-w-4xl mx-auto px-6 lg:px-10 py-16">
-                <div className="text-center mb-12">
-                    <h1 className="text-4xl font-extrabold text-gray-900 mb-4">Simple, Transparent Pricing</h1>
-                    <p className="text-gray-500 text-lg max-w-xl mx-auto">Unlock full access to all study materials with one affordable subscription.</p>
+            <div className="max-w-5xl mx-auto px-6 lg:px-16 py-20 animate-fade-up">
+                <div className="text-center mb-16">
+                    <h1 className="text-5xl md:text-6xl font-black text-primary-950 mb-6 tracking-tighter uppercase">Transparent Pricing</h1>
+                    <p className="text-gray-500 text-xl max-w-xl mx-auto font-medium">Unlock full access to all high-quality study materials with one affordable subscription.</p>
                 </div>
 
                 {isSubscribed && (
-                    <div className="mb-8 p-4 bg-green-50 border border-green-200 rounded-2xl text-center text-green-800 font-semibold flex items-center justify-center gap-2">
-                        <CheckCircle size={18} /> You have an active subscription — enjoy full access!
+                    <div className="mb-12 p-6 bg-green-50 border-2 border-green-100 rounded-[32px] text-center text-green-800 font-black flex items-center justify-center gap-3 shadow-sm uppercase tracking-widest text-sm">
+                        <CheckCircle size={24} /> You have an active subscription — enjoy full access!
                     </div>
                 )}
 
-                <div className="grid md:grid-cols-2 gap-6">
+                <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
                     {plans.map((plan) => (
-                        <div key={plan.id} className={`relative bg-white rounded-3xl border-2 p-8 flex flex-col ${plan.popular ? 'border-primary-500 shadow-xl shadow-primary-600/10' : 'border-gray-100'}`}>
+                        <div key={plan.id} className={`relative bg-white rounded-[32px] border-2 p-8 lg:p-10 flex flex-col transition-all hover:scale-[1.02] ${plan.popular ? 'border-primary-600 shadow-2xl shadow-primary-600/20' : 'border-gray-100 shadow-xl shadow-gray-200/50'}`}>
                             {plan.popular && (
-                                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary-600 text-white text-xs font-bold rounded-full">
+                                <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-primary-600 text-white text-xs font-black rounded-xl shadow-lg uppercase tracking-widest">
                                     Most Popular
                                 </div>
                             )}
-                            {plan.save && (
-                                <div className="inline-flex self-start mb-3 px-2.5 py-0.5 bg-secondary-100 text-secondary-700 text-xs font-bold rounded-full">{plan.save}</div>
-                            )}
-                            <h2 className="text-xl font-extrabold text-gray-900 mb-1">{plan.label}</h2>
-                            <div className="flex items-end gap-1 mb-6">
-                                <span className="text-4xl font-extrabold text-gray-900">{plan.price}</span>
-                                <span className="text-gray-400 text-sm mb-1">{plan.period}</span>
+                            <div className="mb-8 text-center">
+                                <h2 className="text-xl font-black text-gray-900 mb-1.5 uppercase tracking-wide">{plan.label}</h2>
+                                {plan.save && (
+                                    <div className="inline-flex px-3 py-1 bg-secondary-100 text-secondary-800 text-[10px] font-black rounded-lg uppercase tracking-widest border border-secondary-200">{plan.save}</div>
+                                )}
+                            </div>
+                            
+                            <div className="flex items-baseline justify-center gap-1.5 mb-8">
+                                <span className="text-4xl lg:text-5xl font-black text-gray-900 tracking-tight">{plan.price}</span>
+                                <span className="text-gray-400 font-bold text-xs uppercase tracking-widest">{plan.period}</span>
                             </div>
 
-                            <ul className="space-y-3 mb-8 flex-1">
+                            <ul className="space-y-4 mb-8 flex-1">
                                 {plan.features.map((f) => (
-                                    <li key={f} className="flex items-center gap-3 text-sm text-gray-700">
-                                        <Check size={16} className="text-primary-600 shrink-0" />
-                                        {f}
+                                    <li key={f} className="flex items-center gap-3 text-sm font-bold text-gray-700 leading-snug">
+                                        <div className="bg-primary-50 p-1.5 rounded-lg text-primary-600 shadow-sm shrink-0">
+                                            <Check size={16} strokeWidth={4} />
+                                        </div>
+                                        <span className="capitalize">{f}</span>
                                     </li>
                                 ))}
                             </ul>
 
                             <button
-                                onClick={() => initPaystack(plan)}
-                                disabled={isSubscribed}
-                                className={`w-full py-3.5 rounded-xl font-bold text-sm transition-all ${plan.popular
-                                        ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-600/25'
-                                        : 'bg-gray-900 hover:bg-gray-800 text-white'
-                                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                                onClick={() => plan.priceRaw === 0 ? (!user ? window.location.href = '/signup' : window.location.href = '/account') : initPaystack(plan)}
+                                disabled={(isSubscribed && plan.priceRaw > 0) || (user && plan.priceRaw === 0 && !isSubscribed)}
+                                className={`w-full py-4 rounded-2xl font-black text-base lg:text-lg transition-all shadow-xl ${plan.popular
+                                        ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-600/30'
+                                        : plan.priceRaw === 0 ? 'bg-white border-2 border-gray-100 text-gray-900 hover:bg-gray-50 shadow-none' : 'bg-gray-900 hover:bg-gray-800 text-white shadow-gray-900/30'
+                                    } disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider`}
                             >
-                                {isSubscribed ? 'Already Subscribed' : `Get ${plan.label}`}
+                                {isSubscribed && plan.priceRaw > 0 
+                                    ? 'Active' 
+                                    : plan.priceRaw === 0 
+                                        ? (user ? (isSubscribed ? 'Included' : 'Current Plan') : 'Join Free') 
+                                        : `Get ${plan.label}`}
                             </button>
                         </div>
                     ))}
