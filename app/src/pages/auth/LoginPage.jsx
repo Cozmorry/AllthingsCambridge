@@ -17,7 +17,7 @@ const LoginPage = () => {
         e.preventDefault()
         setError('')
         setLoading(true)
-        const { error: err } = await signIn(form)
+        const { error: err } = await signIn({ ...form, email: form.email.trim() })
         setLoading(false)
         if (err) return setError(err.message)
         navigate(from, { replace: true })

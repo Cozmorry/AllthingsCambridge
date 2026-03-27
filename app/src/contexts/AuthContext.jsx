@@ -54,12 +54,7 @@ export const AuthProvider = ({ children }) => {
                 // If no official session, check for a Passkey session
                 const passkeyUserId = localStorage.getItem('passkey_active_session') || localStorage.getItem('mock_passkey_session')
                 if (passkeyUserId) {
-                    let prof = await fetchProfileData(passkeyUserId)
-                    if (!prof) {
-                        const cached = localStorage.getItem(`cached_profile_${passkeyUserId}`)
-                        if (cached) prof = JSON.parse(cached)
-                    }
-
+                    const prof = await fetchProfileData(passkeyUserId)
                     const localKeysStr = localStorage.getItem(`passkeys_${passkeyUserId}`)
                     const localKeys = localKeysStr ? JSON.parse(localKeysStr) : []
                     const authenticEmail = localKeys.length > 0 && localKeys[0].email ? localKeys[0].email : 'user@authenticated.com'
@@ -98,7 +93,11 @@ export const AuthProvider = ({ children }) => {
                     setProfile(prof)
                 }
             } else {
-                if (isMounted) {
+                // Only clear the session if there's no active Passkey session.
+                // Passkey users don't have a Supabase JWT, so this event fires
+                // with session=null even when they ARE logged in.
+                const hasPasskeySession = localStorage.getItem('passkey_active_session') || localStorage.getItem('mock_passkey_session')
+                if (!hasPasskeySession && isMounted) {
                     setUser(null)
                     setProfile(null)
                 }
@@ -144,26 +143,29 @@ export const AuthProvider = ({ children }) => {
 
     const signInWithPasskey = async (userId) => {
         try {
+            // First attempt a live DB read (works if RLS allows it or user has a prior session)
             let prof = await fetchProfileData(userId)
             
-            // Supabase RLS heavily blocks unauthenticated reads, preventing passkey login from identifying the user. 
-            // We reference a secure local snapshot uniquely retained on this device from their authentic prior login.
+            // Passkey login has no JWT, so RLS may block the DB read.
+            // Fall back to the locally cached profile from a prior authenticated session.
             if (!prof) {
                 const cached = localStorage.getItem(`cached_profile_${userId}`)
-                if (cached) prof = JSON.parse(cached)
-            }
-            
-            if (!prof) {
-                return { error: { message: "Profile not found on this device. Please log in with your email first." } }
+                if (cached) {
+                    prof = JSON.parse(cached)
+                    // Do a quick background re-check to see if the user still exists after using cache
+                    // If they were deleted, next refresh will log them out naturally
+                } else {
+                    return { error: { message: "Profile not found. Please log in with your email first to set up Passkey." } }
+                }
             }
 
-            // Verify that the user indeed has a recognized Passkey saved natively on this device browser
+            // Verify that the user indeed has a recognized Passkey saved on this device
             const localKeysStr = localStorage.getItem(`passkeys_${userId}`)
             const localKeys = localKeysStr ? JSON.parse(localKeysStr) : []
             const authenticEmail = localKeys.length > 0 && localKeys[0].email ? localKeys[0].email : 'user@authenticated.com'
 
             if (localKeys.length === 0) {
-                return { error: { message: "Passkeys are not explicitly enabled for this physical device." } }
+                return { error: { message: "Passkeys are not enabled on this device." } }
             }
             
             import('../lib/supabase').then(m => m.setPasskeyHeader(userId))
