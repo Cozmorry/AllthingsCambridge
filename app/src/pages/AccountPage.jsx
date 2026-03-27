@@ -21,6 +21,7 @@ const AccountPage = () => {
 
     useEffect(() => {
         if (!user) return
+        refreshProfile() // Ensure the most up-to-date subscription status on arrival
         supabase.from('payments').select('*').eq('user_id', user.id).order('created_at', { ascending: false })
             .then(({ data }) => setPayments(data ?? []))
     }, [user])
@@ -326,7 +327,7 @@ const AccountPage = () => {
                                 <tr key={p.id} className="border-b border-gray-50 last:border-0">
                                     <td className="py-3 text-gray-700">{new Date(p.created_at).toLocaleDateString()}</td>
                                     <td className="py-3 text-gray-700 capitalize">{p.plan}</td>
-                                    <td className="py-3 text-gray-700 font-bold">USD {(p.amount / 100).toFixed(2)}</td>
+                                    <td className="py-3 text-gray-700 font-bold">USD {p.plan === 'annual' ? '99.99' : '9.99'}</td>
                                     <td className="py-3"><span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-widest ${p.status === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{p.status}</span></td>
                                 </tr>
                             ))}

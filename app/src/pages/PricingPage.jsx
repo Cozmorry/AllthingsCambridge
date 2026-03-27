@@ -56,7 +56,7 @@ const PricingPage = () => {
             ref: `ATC-${Date.now()}-${user.id.slice(0, 8)}`,
             metadata: { user_id: user.id, plan: plan.id },
             callback: (response) => {
-                window.location.href = `/payment/callback?reference=${response.reference}&plan=${plan.id}`
+                window.location.href = `/payment/callback?reference=${response.reference}&plan=${plan.id}&amount=${plan.priceRaw}&currency=KES`
             },
             onClose: () => { },
         })

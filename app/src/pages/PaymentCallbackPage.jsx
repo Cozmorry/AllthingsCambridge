@@ -11,13 +11,15 @@ const PaymentCallbackPage = () => {
     const [status, setStatus] = useState('verifying')
     const reference = searchParams.get('reference')
     const planFromUrl = searchParams.get('plan') || 'monthly'
+    const amountFromUrl = searchParams.get('amount')
+    const currencyFromUrl = searchParams.get('currency') || 'USD'
 
     useEffect(() => {
         const verify = async () => {
             if (!reference || !user) return
 
-            // Determine the accurate USD amount (in cents) based on the plan selected checkout
-            const accurateAmount = planFromUrl === 'annual' ? 9999 : 999
+            // Record the "real value" in USD cents (e.g., 999 for $9.99) regardless of local currency conversion
+            const recordAmount = planFromUrl === 'annual' ? 9999 : 999
 
             let paymentError = null
 
@@ -27,7 +29,8 @@ const PaymentCallbackPage = () => {
                 paystack_reference: reference,
                 status: 'success',
                 plan: planFromUrl,
-                amount: accurateAmount,
+                amount: recordAmount,
+                currency: 'USD', // Recording as USD since that is the "real value" requested
             })
             paymentError = error
 

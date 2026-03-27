@@ -39,41 +39,45 @@ export const AuthProvider = ({ children }) => {
 
         const initializeSession = async () => {
             try {
-                // Intercept for Simulated Passkey Login
-                const mockUserId = localStorage.getItem('mock_passkey_session')
-                if (mockUserId) {
-                    let prof = await fetchProfileData(mockUserId)
-                    if (!prof) {
-                        const cached = localStorage.getItem(`cached_profile_${mockUserId}`)
-                        if (cached) prof = JSON.parse(cached)
-                    }
-
-                    const localKeysStr = localStorage.getItem(`passkeys_${mockUserId}`)
-                    const localKeys = localKeysStr ? JSON.parse(localKeysStr) : []
-                    const authenticEmail = localKeys.length > 0 && localKeys[0].email ? localKeys[0].email : 'user@authenticated.com'
-
-                    if (prof && localKeys.length > 0 && isMounted) {
-                        setUser({ id: mockUserId, email: prof.email || authenticEmail })
-                        setProfile(prof)
-                        setLoading(false)
-                        return
-                    } else {
-                        localStorage.removeItem('mock_passkey_session')
-                    }
-                }
-
+                // Try official Supabase session first
                 const { data: { session } } = await supabase.auth.getSession()
+                
                 if (session?.user) {
                     const prof = await fetchProfileData(session.user.id)
                     if (isMounted) {
                         setUser(session.user)
                         setProfile(prof)
                     }
-                } else {
-                    if (isMounted) {
-                        setUser(null)
-                        setProfile(null)
+                    return // Official session found, stop here
+                }
+
+                // If no official session, check for a Passkey session
+                const passkeyUserId = localStorage.getItem('passkey_active_session') || localStorage.getItem('mock_passkey_session')
+                if (passkeyUserId) {
+                    let prof = await fetchProfileData(passkeyUserId)
+                    if (!prof) {
+                        const cached = localStorage.getItem(`cached_profile_${passkeyUserId}`)
+                        if (cached) prof = JSON.parse(cached)
                     }
+
+                    const localKeysStr = localStorage.getItem(`passkeys_${passkeyUserId}`)
+                    const localKeys = localKeysStr ? JSON.parse(localKeysStr) : []
+                    const authenticEmail = localKeys.length > 0 && localKeys[0].email ? localKeys[0].email : 'user@authenticated.com'
+
+                    if (prof && localKeys.length > 0 && isMounted) {
+                        setUser({ id: passkeyUserId, email: prof.email || authenticEmail })
+                        setProfile(prof)
+                        return
+                    } else {
+                        localStorage.removeItem('passkey_active_session')
+                        localStorage.removeItem('mock_passkey_session')
+                    }
+                }
+
+                // No sessions found
+                if (isMounted) {
+                    setUser(null)
+                    setProfile(null)
                 }
             } catch (error) {
                 console.error("Session initialize error", error)
@@ -111,9 +115,14 @@ export const AuthProvider = ({ children }) => {
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
-            options: { data: { full_name: fullName } },
+            options: { 
+                data: { full_name: fullName },
+                emailRedirectTo: `${window.location.origin}/login`
+            },
         })
         if (data?.session?.user) {
+            import('../lib/supabase').then(m => m.setPasskeyHeader(null))
+            localStorage.removeItem('mock_passkey_session')
             const prof = await fetchProfileData(data.session.user.id)
             setUser(data.session.user)
             setProfile(prof)
@@ -124,6 +133,8 @@ export const AuthProvider = ({ children }) => {
     const signIn = async ({ email, password }) => {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password })
         if (data?.session?.user) {
+            import('../lib/supabase').then(m => m.setPasskeyHeader(null))
+            localStorage.removeItem('mock_passkey_session')
             const prof = await fetchProfileData(data.session.user.id)
             setUser(data.session.user)
             setProfile(prof)
