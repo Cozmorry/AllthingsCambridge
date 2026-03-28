@@ -84,7 +84,7 @@ const AccountPage = () => {
                 timeout: 60000,
                 attestation: "none"
             }
-            
+
             const credential = await navigator.credentials.create({ publicKey: publicKeyCredentialCreationOptions })
             if (credential) {
                 // Determine rough device type
@@ -105,7 +105,7 @@ const AccountPage = () => {
                 const updatedPasskeys = [...filteredPasskeys, newKey]
                 setPasskeys(updatedPasskeys)
                 localStorage.setItem(`passkeys_${user.id}`, JSON.stringify(updatedPasskeys))
-                
+
                 await supabase.from('profiles').update({ has_passkey: true }).eq('id', user.id)
                 await refreshProfile()
                 setPasskeyMsg({ type: 'success', text: 'Passkey securely added to this device.' })
@@ -124,7 +124,7 @@ const AccountPage = () => {
         const updated = passkeys.filter(pk => pk.id !== idToRemove)
         setPasskeys(updated)
         localStorage.setItem(`passkeys_${user.id}`, JSON.stringify(updated))
-        
+
         if (updated.length === 0) {
             await supabase.from('profiles').update({ has_passkey: false }).eq('id', user.id)
             await refreshProfile()
@@ -232,7 +232,7 @@ const AccountPage = () => {
                             </p>
                             <p className="text-xs text-gray-500">Your payments process automatically via Paystack.</p>
                         </div>
-                        <button 
+                        <button
                             onClick={() => setShowCancelModal(true)}
                             className="shrink-0 px-4 py-2 border border-red-200 text-red-600 hover:bg-red-50 text-sm font-bold rounded-xl transition-all flex items-center gap-2"
                         >
@@ -268,7 +268,7 @@ const AccountPage = () => {
                 <h2 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <KeyRound size={18} className="text-primary-500" /> Security & Passkeys
                 </h2>
-                
+
                 {passkeyMsg.text && (
                     <div className={`p-3 mb-4 rounded-xl text-sm font-bold flex items-center gap-2 ${passkeyMsg.type === 'success' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                         {passkeyMsg.type === 'success' ? <CheckCircle size={16} /> : <AlertCircle size={16} />}
@@ -281,7 +281,7 @@ const AccountPage = () => {
                         <p className="text-sm font-bold text-gray-800 mb-1">Passwordless Login</p>
                         <p className="text-xs text-gray-500 max-w-sm">Use your device's fingerprint, face scan, or screen lock to sign in securely.</p>
                     </div>
-                    <button 
+                    <button
                         onClick={registerPasskey}
                         className={`shrink-0 px-5 py-2.5 rounded-xl text-sm font-bold transition-all flex items-center gap-2 bg-gray-900 text-white hover:bg-gray-800`}
                     >
@@ -348,9 +348,9 @@ const AccountPage = () => {
                         <div className="w-16 h-16 bg-red-50 text-red-600 rounded-full flex items-center justify-center mb-6 shadow-inner ring-4 ring-white mx-auto">
                             <AlertCircle size={32} />
                         </div>
-                        
+
                         <h2 className="text-3xl font-black text-gray-900 text-center mb-4 tracking-tighter">Cancel Subscription</h2>
-                        
+
                         <div className="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100 shadow-sm text-sm text-gray-700 leading-relaxed text-left">
                             <p className="font-bold text-gray-900 mb-4 text-base">Here is what to expect if you proceed:</p>
                             <ul className="space-y-4 mb-0">
@@ -368,16 +368,16 @@ const AccountPage = () => {
                                 </li>
                             </ul>
                         </div>
-                        
+
                         <div className="flex flex-col gap-3 mt-4">
-                            <button 
-                                onClick={cancelSubscription} 
+                            <button
+                                onClick={cancelSubscription}
                                 disabled={cancelling}
                                 className="w-full py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-lg shadow-red-600/20 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider text-sm"
                             >
                                 {cancelling ? 'Processing...' : 'Yes, Cancel My Subscription'}
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setShowCancelModal(false)}
                                 disabled={cancelling}
                                 className="w-full py-4 bg-white border-2 border-gray-200 hover:bg-gray-50 text-gray-900 font-bold rounded-xl transition-all uppercase tracking-wider text-sm shadow-sm"

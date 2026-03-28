@@ -181,8 +181,8 @@ const SubjectPage = () => {
                                     {activeTab === 'flashcards' ? (
                                         <FlashcardDecks decks={decks} levelSlug={levelSlug} subjectSlug={subjectSlug} />
                                     ) : (
-                                        <ResourceList 
-                                            resources={selectedYear === 'all' ? resources : resources.filter(r => r.year === selectedYear)} 
+                                        <ResourceList
+                                            resources={selectedYear === 'all' ? resources : resources.filter(r => r.year === selectedYear)}
                                             isNotes={activeTab === 'notes'}
                                         />
                                     )}

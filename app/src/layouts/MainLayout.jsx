@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Outlet, Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
@@ -46,21 +46,41 @@ const MainLayout = () => {
     const [sidebarOpen, setSidebarOpen] = useState(false)
     const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
     const [activeCategory, setActiveCategory] = useState(null)
+    const [scrolled, setScrolled] = useState(false)
+    const scrollContainerRef = useRef(null)
 
     useEffect(() => {
-        if (dark) localStorage.setItem('theme', 'dark')
-        else localStorage.setItem('theme', 'light')
+        if (dark) {
+            localStorage.setItem('theme', 'dark')
+            document.documentElement.classList.add('dark')
+        } else {
+            localStorage.setItem('theme', 'light')
+            document.documentElement.classList.remove('dark')
+        }
     }, [dark])
+
     const { user, profile, isAdmin, signOut } = useAuth()
     const { levels, loading: dataLoading } = useData()
     const location = useLocation()
     const navigate = useNavigate()
     const isStudyMode = location.pathname.includes('/flashcards/')
 
+    const handleScroll = (e) => {
+        setScrolled(e.target.scrollTop > 20)
+    }
 
+    // Reset scrolled state on route change
+    useEffect(() => {
+        setScrolled(false)
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = 0
+        }
+    }, [location.pathname])
+
+    const isHome = location.pathname === '/'
 
     return (
-        <div className={`flex h-screen overflow-hidden ${dark ? 'dark' : ''} ${location.pathname === '/' ? 'bg-primary-600 dark:bg-[#0c1220]' : 'bg-[#f3f4f9] dark:bg-[#0c1220]'}`}>
+        <div className={`flex h-screen overflow-hidden ${dark ? 'dark' : ''} ${isHome ? 'bg-primary-600 dark:bg-[#0c1220]' : 'bg-[#f3f4f9] dark:bg-[#0c1220]'}`}>
             {/* Mobile Backdrop for Primary Sidebar */}
             {sidebarOpen && (
                 <div
@@ -73,14 +93,14 @@ const MainLayout = () => {
             )}
 
             {/* Main Primary Sidebar */}
-            <aside className={`shrink-0 border-r flex flex-col transition-all duration-300 z-40 fixed h-full overflow-hidden ${location.pathname === '/' ? 'bg-primary-900/90 backdrop-blur-md border-transparent' : 'bg-[#f8fafc] border-[#e5e7eb] dark:bg-[#1e293b] dark:border-gray-800'} ${sidebarOpen ? 'w-[280px] translate-x-0 shadow-2xl' : 'w-[280px] -translate-x-full'
+            <aside className={`shrink-0 border-r flex flex-col transition-all duration-300 z-40 fixed h-full overflow-hidden ${isHome ? 'bg-primary-900/90 backdrop-blur-md border-transparent' : 'bg-[#f8fafc] border-[#e5e7eb] dark:bg-[#1e293b] dark:border-gray-800'} ${sidebarOpen ? 'w-[280px] translate-x-0 shadow-2xl' : 'w-[280px] -translate-x-full'
                 }`}>
                 {/* Logo */}
-                <div className={`h-16 flex items-center px-4 shrink-0 border-b ${location.pathname === '/' ? 'border-transparent' : 'border-[#e5e7eb] dark:border-gray-800'}`}>
+                <div className={`h-16 flex items-center px-4 shrink-0 border-b ${isHome ? 'border-transparent' : 'border-[#e5e7eb] dark:border-gray-800'}`}>
                     {sidebarOpen ? (
                         <Link to="/" className="flex items-center gap-2.5 font-extrabold text-lg truncate" onClick={() => { setActiveCategory(null); if (window.innerWidth < 1024) setSidebarOpen(false); }}>
                             <img src="/icon.png" alt="ATC" className="w-8 h-8 rounded-lg shrink-0" />
-                            <span className={location.pathname === '/' ? 'text-white' : 'text-gray-900 dark:text-white'}>AllThingsCambridge</span>
+                            <span className={isHome ? 'text-white' : 'text-gray-900 dark:text-white'}>AllThingsCambridge</span>
                         </Link>
                     ) : (
                         <Link to="/" className="mx-auto hidden lg:flex" onClick={() => setActiveCategory(null)}><img src="/icon.png" alt="ATC" className="w-8 h-8 rounded-lg" /></Link>
@@ -110,7 +130,6 @@ const MainLayout = () => {
                                                 setActiveCategory(null)
                                             }}
                                             className={({ isActive }) => {
-                                                const isHome = location.pathname === '/';
                                                 const activeClass = isHome ? 'bg-white/10 text-white' : 'bg-[#eef1ff] text-[#2d59ff] dark:bg-primary-900/20 dark:text-primary-400';
                                                 const inactiveClass = isHome ? 'text-white/70 hover:bg-white/5 hover:text-white' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200';
                                                 return `flex items-center ${sidebarOpen ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl mb-1 text-sm font-semibold transition-all group ` +
@@ -126,14 +145,17 @@ const MainLayout = () => {
 
                                 // If it's a resource category triggering the secondary sidebar
                                 return (
-                                    <button
+                                <button
                                         key={item.label}
-                                        onClick={() => setActiveCategory(isActiveResource ? null : item.id)}
+                                        onClick={() => {
+                                            setActiveCategory(isActiveResource ? null : item.id)
+                                            if (window.innerWidth < 1024) setSidebarOpen(false)
+                                        }}
                                         className={
                                             `w-full flex items-center justify-between ${sidebarOpen ? 'px-3' : 'justify-center'} py-2.5 rounded-xl mb-1 text-sm font-semibold transition-all ` +
                                             (isActiveResource
-                                                ? (location.pathname === '/' ? 'bg-white/20 text-white shadow-sm' : 'bg-[#2d59ff] text-white shadow-md dark:bg-primary-600')
-                                                : (location.pathname === '/' ? 'text-white/70 hover:bg-white/5 hover:text-white' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200'))
+                                                ? (isHome ? 'bg-white/20 text-white shadow-sm' : 'bg-[#2d59ff] text-white shadow-md dark:bg-primary-600')
+                                                : (isHome ? 'text-white/70 hover:bg-white/5 hover:text-white' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200'))
                                         }
                                         title={!sidebarOpen ? item.label : undefined}
                                     >
@@ -153,7 +175,6 @@ const MainLayout = () => {
                         <div className="px-4 mb-4">
                             {sidebarOpen && <p className="text-[11px] font-bold tracking-widest text-[#9ca3af] uppercase mb-3 px-2">Admin</p>}
                             <NavLink to="/admin" onClick={() => { setActiveCategory(null); if (window.innerWidth < 1024) setSidebarOpen(false); }} className={({ isActive }) => {
-                                const isHome = location.pathname === '/';
                                 const activeClass = isHome ? 'bg-white/10 text-white' : 'bg-secondary-50 text-secondary-700 dark:bg-secondary-900/20 dark:text-secondary-400';
                                 const inactiveClass = isHome ? 'text-white/70 hover:bg-white/5 hover:text-white' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200';
                                 return `flex items-center ${sidebarOpen ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl text-sm font-semibold transition-all ` +
@@ -168,7 +189,7 @@ const MainLayout = () => {
 
                 {/* Bottom user area */}
                 {user && (
-                    <div className={`p-3 shrink-0 border-t ${location.pathname === '/' ? 'border-white/10' : 'border-[#e5e7eb] dark:border-gray-800'}`}>
+                    <div className={`p-3 shrink-0 border-t ${isHome ? 'border-white/10' : 'border-[#e5e7eb] dark:border-gray-800'}`}>
                         <div className={`flex items-center ${sidebarOpen ? 'gap-3 px-2' : 'justify-center'}`}>
                             {profile?.avatar_url ? (
                                 <img src={profile.avatar_url} alt="" className="w-8 h-8 rounded-full object-cover shrink-0" />
@@ -179,12 +200,12 @@ const MainLayout = () => {
                             )}
                             {sidebarOpen && (
                                 <div className="flex-1 min-w-0">
-                                    <p className={`text-sm font-medium truncate ${location.pathname === '/' ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>{profile?.full_name ?? 'Student'}</p>
-                                    <p className={`text-xs truncate ${location.pathname === '/' ? 'text-white/60' : 'text-gray-400'}`}>{user.email}</p>
+                                    <p className={`text-sm font-medium truncate ${isHome ? 'text-white' : 'text-gray-800 dark:text-gray-100'}`}>{profile?.full_name ?? 'Student'}</p>
+                                    <p className={`text-xs truncate ${isHome ? 'text-white/60' : 'text-gray-400'}`}>{user.email}</p>
                                 </div>
                             )}
                             {sidebarOpen && (
-                                <button onClick={signOut} className={`p-1.5 rounded-lg transition-colors shrink-0 ${location.pathname === '/' ? 'text-white/50 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'}`} title="Sign Out">
+                                <button onClick={signOut} className={`p-1.5 rounded-lg transition-colors shrink-0 ${isHome ? 'text-white/50 hover:text-white hover:bg-white/10' : 'text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'}`} title="Sign Out">
                                     <LogOut size={16} />
                                 </button>
                             )}
@@ -198,15 +219,15 @@ const MainLayout = () => {
                 <>
                     {/* Mobile Backdrop for Secondary Sidebar */}
                     <div
-                        className="fixed inset-0 bg-gray-900/10 backdrop-blur-sm z-40 transition-opacity"
+                        className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-40 transition-opacity"
                         onClick={() => setActiveCategory(null)}
                     />
-                    <div className={`w-[320px] max-w-[85vw] h-full bg-[#0c1220] border-r border-white/5 flex flex-col shrink-0 overflow-y-auto z-50 shadow-2xl transition-all fixed duration-300 ${sidebarOpen ? 'left-[280px]' : 'left-0'}`}>
-                        <div className="p-6 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0c1220]/80 backdrop-blur-md z-10 shrink-0">
-                            <h2 className="text-xl font-black text-white truncate pr-4 capitalize tracking-tight">
+                    <div className={`w-[320px] max-w-[85vw] h-full border-r flex flex-col shrink-0 overflow-y-auto z-50 shadow-2xl transition-all fixed duration-300 ${sidebarOpen && window.innerWidth >= 1024 ? 'left-[280px]' : 'left-0'} ${dark ? 'bg-[#0c1220] border-white/5' : 'bg-white border-gray-100'}`}>
+                        <div className={`p-6 border-b flex items-center justify-between sticky top-0 backdrop-blur-md z-10 shrink-0 ${dark ? 'bg-[#0c1220]/80 border-white/5' : 'bg-white/80 border-gray-100'}`}>
+                            <h2 className={`text-xl font-black truncate pr-4 capitalize tracking-tight ${dark ? 'text-white' : 'text-gray-900'}`}>
                                 {navSections.flatMap(s => s.items).find(i => i.id === activeCategory)?.label || 'Resources'}
                             </h2>
-                            <button onClick={() => setActiveCategory(null)} className="p-2 text-white/40 hover:bg-white/10 hover:text-white rounded-xl transition-colors">
+                            <button onClick={() => setActiveCategory(null)} className={`p-2 rounded-xl transition-colors ${dark ? 'text-white/40 hover:bg-white/10 hover:text-white' : 'text-gray-400 hover:bg-gray-100 hover:text-gray-900'}`}>
                                 <X size={20} />
                             </button>
                         </div>
@@ -215,7 +236,7 @@ const MainLayout = () => {
                             {dataLoading ? (
                                 <div className="space-y-3">
                                     {[1, 2, 3].map(i => (
-                                        <div key={i} className="h-12 bg-white/5 rounded-xl animate-pulse"></div>
+                                        <div key={i} className={`h-12 rounded-xl animate-pulse ${dark ? 'bg-white/5' : 'bg-gray-100'}`}></div>
                                     ))}
                                 </div>
                             ) : (
@@ -228,10 +249,12 @@ const MainLayout = () => {
                                                 setActiveCategory(null)
                                                 setSidebarOpen(false)
                                             }}
-                                            className="group flex items-center justify-between px-5 py-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-primary-600 hover:border-primary-500 hover:shadow-lg transition-all text-white/70 hover:text-white"
+                                            className={`group flex items-center justify-between px-5 py-4 border rounded-2xl transition-all ${dark 
+                                                ? 'bg-white/5 border-white/5 text-white/70 hover:bg-primary-600 hover:border-primary-500 hover:text-white' 
+                                                : 'bg-gray-50 border-gray-100 text-gray-600 hover:bg-primary-600 hover:border-primary-500 hover:text-white hover:shadow-lg shadow-sm font-semibold'}`}
                                         >
                                             <span className="font-bold text-base">{level.name}</span>
-                                            <ChevronRight size={18} className="text-white/20 group-hover:text-white group-hover:translate-x-1 transition-all" />
+                                            <ChevronRight size={18} className={`transition-all ${dark ? 'text-white/20 group-hover:text-white' : 'text-gray-300 group-hover:text-white group-hover:translate-x-1'}`} />
                                         </Link>
                                     ))}
                                 </div>
@@ -242,24 +265,38 @@ const MainLayout = () => {
             )}
 
             {/* Main content */}
-            <div className={`flex-1 flex flex-col min-w-0 overflow-y-auto relative z-10 ${location.pathname === '/' ? 'bg-transparent' : 'bg-white dark:bg-gray-900'}`}>
+            <div
+                ref={scrollContainerRef}
+                onScroll={handleScroll}
+                className={`flex-1 flex flex-col min-w-0 overflow-y-auto relative z-10 ${isHome ? 'bg-transparent' : 'bg-white dark:bg-gray-900'}`}
+            >
                 {/* Header */}
-                <header className={`h-16 border-b flex items-center justify-between px-4 lg:px-6 shrink-0 z-20 transition-colors sticky top-0 ${location.pathname === '/' ? 'bg-transparent border-transparent -mb-16' : 'bg-white border-gray-100 dark:bg-gray-900 dark:border-gray-800'}`}>
+                <header className={`h-16 border-b flex items-center justify-between px-4 lg:px-6 shrink-0 z-20 transition-all duration-300 sticky top-0 ${isHome
+                        ? (scrolled
+                            ? 'bg-white/90 backdrop-blur-md border-gray-100 shadow-sm dark:bg-[#0c1220]/90 dark:border-gray-800'
+                            : 'bg-transparent border-transparent -mb-16')
+                        : 'bg-white border-gray-100 dark:bg-gray-900 dark:border-gray-800'
+                    }`}>
                     <div className="flex items-center gap-3">
-                        <button onClick={() => setSidebarOpen(!sidebarOpen)} className={`p-2 rounded-xl transition-colors ${location.pathname === '/' ? 'text-primary-800 hover:bg-primary-50/50 hover:text-primary-900' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-800'}`}>
+                        <button
+                            onClick={() => setSidebarOpen(!sidebarOpen)}
+                            className={`p-2 rounded-xl transition-colors ${isHome
+                                    ? (scrolled
+                                        ? 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                                        : 'text-white hover:bg-white/20')
+                                    : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-800'
+                                }`}
+                        >
                             {sidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
                         </button>
-                        {location.pathname !== '/' && (() => {
+                        {!isHome && (() => {
                             // Determine smart back behavior based on current route
                             const pathParts = location.pathname.split('/').filter(Boolean)
-                            const searchTab = new URLSearchParams(location.search).get('tab')
 
                             const handleBack = () => {
                                 if (pathParts.includes('flashcards') && pathParts.length >= 5) {
-                                    // Specifically handle jumping back from a flashcard deck to the subject page
                                     navigate(`/levels/${pathParts[1]}/${pathParts[2]}?tab=flashcards`)
                                 } else if (pathParts.length > 2) {
-                                    // Go back one level (e.g., from subject back to level)
                                     navigate('/' + pathParts.slice(0, pathParts.length - 1).join('/'))
                                 } else if (pathParts.length === 2) {
                                     navigate('/')
@@ -286,20 +323,48 @@ const MainLayout = () => {
                     </div>
 
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setDark(!dark)} className={`p-2 rounded-xl transition-colors ${location.pathname === '/' ? 'text-primary-800 hover:bg-primary-50/50 hover:text-primary-900' : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-800'}`}>
+                        <button
+                            onClick={() => setDark(!dark)}
+                            className={`p-2 rounded-xl transition-colors ${isHome
+                                    ? (scrolled
+                                        ? 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                                        : 'text-white hover:bg-white/20')
+                                    : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-800'
+                                }`}
+                        >
                             {dark ? <Sun size={20} /> : <Moon size={20} />}
                         </button>
                         {!user ? (
                             <>
-                                <Link to="/login" className={`hidden sm:block px-4 py-2 text-sm font-medium transition-colors ${location.pathname === '/' ? 'text-primary-800 hover:text-primary-900' : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'}`}>Log In</Link>
-                                <Link to="/signup" className={`px-4 py-2 text-sm font-semibold rounded-xl transition-colors shadow-sm ${location.pathname === '/' ? 'bg-gray-900 hover:bg-gray-800 text-white shadow-gray-900/20' : 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-600/20'}`}>Sign Up</Link>
+                                <Link
+                                    to="/login"
+                                    className={`hidden sm:block px-4 py-2 text-sm font-medium transition-colors ${isHome
+                                            ? (scrolled
+                                                ? 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+                                                : 'text-white hover:text-white/80')
+                                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+                                        }`}
+                                >
+                                    Log In
+                                </Link>
+                                <Link
+                                    to="/signup"
+                                    className={`px-4 py-2 text-sm font-semibold rounded-xl transition-colors shadow-sm ${isHome
+                                            ? (scrolled
+                                                ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-600/20'
+                                                : 'bg-secondary-400 hover:bg-secondary-500 text-gray-900 shadow-xl shadow-secondary-900/10')
+                                            : 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-600/20'
+                                        }`}
+                                >
+                                    Sign Up
+                                </Link>
                             </>
                         ) : (
-                            <Link to="/account" className="flex items-center gap-2 px-3 py-1.5 rounded-xl hover:bg-gray-50 transition-colors">
+                            <Link to="/account" className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-colors ${isHome && !scrolled ? 'hover:bg-white/10' : 'hover:bg-gray-50 dark:hover:bg-gray-800'}`}>
                                 {profile?.avatar_url ? (
-                                    <img src={profile.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-gray-100 shadow-sm" />
+                                    <img src={profile.avatar_url} alt="" className="w-7 h-7 rounded-full object-cover shrink-0 border border-white/20 shadow-sm" />
                                 ) : (
-                                    <div className="w-7 h-7 rounded-full bg-primary-100 text-primary-700 flex items-center justify-center font-bold text-xs">
+                                    <div className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs ${isHome && !scrolled ? 'bg-white/20 text-white' : 'bg-primary-100 text-primary-700'}`}>
                                         {profile?.full_name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? 'U'}
                                     </div>
                                 )}
