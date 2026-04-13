@@ -8,6 +8,7 @@ import {
     Users, MessageSquare, Info, Mail, Menu, Moon, Sun,
     ChevronLeft, LogOut, Settings, Crown, ChevronRight, X
 } from 'lucide-react'
+import Footer from '../components/Footer'
 
 const navSections = [
     {
@@ -133,7 +134,7 @@ const MainLayout = () => {
                                                 const activeClass = isHome ? 'bg-white/10 text-white' : 'bg-[#eef1ff] text-[#2d59ff] dark:bg-primary-900/20 dark:text-primary-400';
                                                 const inactiveClass = isHome ? 'text-white/70 hover:bg-white/5 hover:text-white' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200';
                                                 return `flex items-center ${sidebarOpen ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl mb-1 text-sm font-semibold transition-all group ` +
-                                                (isActive && !activeCategory ? activeClass : inactiveClass)
+                                                    (isActive && !activeCategory ? activeClass : inactiveClass)
                                             }}
                                             title={!sidebarOpen ? item.label : undefined}
                                         >
@@ -145,7 +146,7 @@ const MainLayout = () => {
 
                                 // If it's a resource category triggering the secondary sidebar
                                 return (
-                                <button
+                                    <button
                                         key={item.label}
                                         onClick={() => {
                                             setActiveCategory(isActiveResource ? null : item.id)
@@ -178,7 +179,7 @@ const MainLayout = () => {
                                 const activeClass = isHome ? 'bg-white/10 text-white' : 'bg-secondary-50 text-secondary-700 dark:bg-secondary-900/20 dark:text-secondary-400';
                                 const inactiveClass = isHome ? 'text-white/70 hover:bg-white/5 hover:text-white' : 'text-[#4b5563] hover:bg-gray-50 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200';
                                 return `flex items-center ${sidebarOpen ? 'gap-3 px-3' : 'justify-center'} py-2.5 rounded-xl text-sm font-semibold transition-all ` +
-                                (isActive && !activeCategory ? activeClass : inactiveClass)
+                                    (isActive && !activeCategory ? activeClass : inactiveClass)
                             }}>
                                 <Settings size={18} className="shrink-0" />
                                 {sidebarOpen && <span>Admin Panel</span>}
@@ -249,8 +250,8 @@ const MainLayout = () => {
                                                 setActiveCategory(null)
                                                 setSidebarOpen(false)
                                             }}
-                                            className={`group flex items-center justify-between px-5 py-4 border rounded-2xl transition-all ${dark 
-                                                ? 'bg-white/5 border-white/5 text-white/70 hover:bg-primary-600 hover:border-primary-500 hover:text-white' 
+                                            className={`group flex items-center justify-between px-5 py-4 border rounded-2xl transition-all ${dark
+                                                ? 'bg-white/5 border-white/5 text-white/70 hover:bg-primary-600 hover:border-primary-500 hover:text-white'
                                                 : 'bg-gray-50 border-gray-100 text-gray-600 hover:bg-primary-600 hover:border-primary-500 hover:text-white hover:shadow-lg shadow-sm font-semibold'}`}
                                         >
                                             <span className="font-bold text-base">{level.name}</span>
@@ -268,23 +269,23 @@ const MainLayout = () => {
             <div
                 ref={scrollContainerRef}
                 onScroll={handleScroll}
-                className={`flex-1 flex flex-col min-w-0 overflow-y-auto relative z-10 ${isHome ? 'bg-transparent' : 'bg-white dark:bg-gray-900'}`}
+                className={`flex-1 min-w-0 overflow-y-auto relative z-10 ${isHome ? 'bg-transparent' : 'bg-white dark:bg-gray-900'}`}
             >
                 {/* Header */}
                 <header className={`h-16 border-b flex items-center justify-between px-4 lg:px-6 shrink-0 z-20 transition-all duration-300 sticky top-0 ${isHome
-                        ? (scrolled
-                            ? 'bg-white/90 backdrop-blur-md border-gray-100 shadow-sm dark:bg-[#0c1220]/90 dark:border-gray-800'
-                            : 'bg-transparent border-transparent -mb-16')
-                        : 'bg-white border-gray-100 dark:bg-gray-900 dark:border-gray-800'
+                    ? (scrolled
+                        ? 'bg-white/90 backdrop-blur-md border-gray-100 shadow-sm dark:bg-[#0c1220]/90 dark:border-gray-800'
+                        : 'bg-transparent border-transparent -mb-16')
+                    : 'bg-white border-gray-100 dark:bg-gray-900 dark:border-gray-800'
                     }`}>
                     <div className="flex items-center gap-3">
                         <button
                             onClick={() => setSidebarOpen(!sidebarOpen)}
                             className={`p-2 rounded-xl transition-colors ${isHome
-                                    ? (scrolled
-                                        ? 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
-                                        : 'text-white hover:bg-white/20')
-                                    : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-800'
+                                ? (scrolled
+                                    ? 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                                    : 'text-white hover:bg-white/20')
+                                : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-800'
                                 }`}
                         >
                             {sidebarOpen ? <ChevronLeft size={20} /> : <Menu size={20} />}
@@ -326,10 +327,10 @@ const MainLayout = () => {
                         <button
                             onClick={() => setDark(!dark)}
                             className={`p-2 rounded-xl transition-colors ${isHome
-                                    ? (scrolled
-                                        ? 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
-                                        : 'text-white hover:bg-white/20')
-                                    : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-800'
+                                ? (scrolled
+                                    ? 'text-gray-600 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-800'
+                                    : 'text-white hover:bg-white/20')
+                                : 'text-gray-400 hover:bg-gray-50 hover:text-gray-700 dark:hover:bg-gray-800'
                                 }`}
                         >
                             {dark ? <Sun size={20} /> : <Moon size={20} />}
@@ -339,10 +340,10 @@ const MainLayout = () => {
                                 <Link
                                     to="/login"
                                     className={`hidden sm:block px-4 py-2 text-sm font-medium transition-colors ${isHome
-                                            ? (scrolled
-                                                ? 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
-                                                : 'text-white hover:text-white/80')
-                                            : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+                                        ? (scrolled
+                                            ? 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
+                                            : 'text-white hover:text-white/80')
+                                        : 'text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white'
                                         }`}
                                 >
                                     Log In
@@ -350,10 +351,10 @@ const MainLayout = () => {
                                 <Link
                                     to="/signup"
                                     className={`px-4 py-2 text-sm font-semibold rounded-xl transition-colors shadow-sm ${isHome
-                                            ? (scrolled
-                                                ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-600/20'
-                                                : 'bg-secondary-400 hover:bg-secondary-500 text-gray-900 shadow-xl shadow-secondary-900/10')
-                                            : 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-600/20'
+                                        ? (scrolled
+                                            ? 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-600/20'
+                                            : 'bg-secondary-400 hover:bg-secondary-500 text-gray-900 shadow-xl shadow-secondary-900/10')
+                                        : 'bg-primary-600 hover:bg-primary-700 text-white shadow-primary-600/20'
                                         }`}
                                 >
                                     Sign Up
@@ -375,11 +376,12 @@ const MainLayout = () => {
                 </header>
 
                 {/* Page outlet */}
-                <main className="flex-1 flex flex-col min-h-0">
-                    <div className="page-enter flex-1">
+                <main>
+                    <div className="page-enter">
                         <Outlet />
                     </div>
                 </main>
+                {!isStudyMode && <Footer />}
             </div>
         </div>
     )

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { supabase } from '../lib/supabase'
-import { Check, Star, FileText, Layers, MessageCircle, Lightbulb } from 'lucide-react'
+import { Check, Star, FileText, Layers, MessageCircle, Lightbulb, CheckCircle2, BookOpen, Users, Award, Book } from 'lucide-react'
 
 const features = [
     {
@@ -44,19 +44,25 @@ const reasons = [
 
 const testimonials = [
     {
-        quote: "All Things Cambridge helped me improve my grades!",
-        name: "Sarah K.",
-        img: "https://placehold.co/100x100/3b46ff/ffffff?text=SK"
+        stars: 5,
+        quote: "AllThingsCambridge transformed my IGCSE preparation. The resources are incredibly detailed and helped me understand complex concepts easily. I achieved 7 A*s!",
+        name: "Emma Chen",
+        title: "IGCSE Student, Singapore",
+        img: "https://xsgames.co/randomusers/assets/avatars/female/21.jpg"
     },
     {
-        quote: "This site has Cambridge I need to excel in my exams.",
-        name: "James L.",
-        img: "https://placehold.co/100x100/3b46ff/ffffff?text=JL"
+        stars: 5,
+        quote: "As a teacher, I recommend AllThingsCambridge to all my A Level students. The materials align perfectly with the curriculum and the practice questions are excellent preparation for exams.",
+        name: "David Wilson",
+        title: "A Level Physics Teacher, UK",
+        img: "https://xsgames.co/randomusers/assets/avatars/male/74.jpg"
     },
     {
-        quote: "The forums are amazing for getting study help.",
-        name: "Anita M.",
-        img: "https://placehold.co/100x100/3b46ff/ffffff?text=AM"
+        stars: 4,
+        quote: "The video tutorials made a huge difference in my understanding of calculus. AllThingsCambridge helped me achieve an A in Mathematics when I was previously struggling.",
+        name: "Olivia Patel",
+        title: "A Level Student, Dubai",
+        img: "https://xsgames.co/randomusers/assets/avatars/female/68.jpg"
     }
 ]
 
@@ -210,6 +216,33 @@ const HomePage = () => {
                 </div>
             </section>
 
+            {/* ── Everything You Need to Excel ── */}
+            <section className="py-24 px-6 lg:px-16 reveal bg-gray-50/30 dark:bg-gray-800/20">
+                <div className="max-w-4xl mx-auto">
+                    <h2 className="text-4xl lg:text-5xl font-black text-center text-primary-950 dark:text-white mb-12 tracking-tight">Everything You Need to Excel</h2>
+                    <div className="bg-white dark:bg-gray-800 rounded-[32px] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.08)] border border-gray-100 dark:border-gray-700 p-8 sm:p-12">
+                        <ul className="space-y-8">
+                            {[
+                                { label: 'Comprehensive Study Materials', icon: BookOpen },
+                                { label: 'Online Community', icon: Users },
+                                { label: 'Past Papers & Solutions', icon: FileText },
+                                { label: 'Achievement Tracking', icon: Award },
+                                { label: 'Community Support', icon: Users },
+                                { label: 'Curriculum-Aligned Content', icon: Book }
+                            ].map((item, idx) => (
+                                <li key={idx} className="flex items-center justify-between group">
+                                    <div className="flex items-center gap-5">
+                                        <CheckCircle2 size={26} className="text-[#015e53] dark:text-[#02b39f] shrink-0" strokeWidth={2} />
+                                        <span className="text-gray-900 dark:text-gray-100 font-bold text-lg">{item.label}</span>
+                                    </div>
+                                    <item.icon size={26} className="text-[#015e53] dark:text-[#02b39f] shrink-0 opacity-80" strokeWidth={1.5} />
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
             {/* ── Why Choose Us? ── */}
             <section className="py-28 px-6 lg:px-16 bg-gray-50/50 reveal">
                 <div className="max-w-7xl mx-auto">
@@ -242,22 +275,31 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* ── Success Stories ── */}
-            <section className="py-28 px-6 lg:px-16 max-w-7xl mx-auto text-center reveal">
-                <h2 className="text-5xl font-black text-primary-950 mb-20 tracking-tighter uppercase">Success Stories</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-                    {testimonials.map((test, idx) => (
-                        <div key={idx} className="bg-white p-10 rounded-[40px] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-gray-100 flex flex-col items-center text-center relative hover:shadow-xl transition-shadow reveal" style={{ transitionDelay: `${idx * 200}ms` }}>
-                            <img src={test.img} alt={test.name} className="w-24 h-24 rounded-full object-cover mb-8 border-8 border-primary-50 shadow-inner" />
-                            <p className="text-gray-800 text-xl font-bold italic leading-relaxed mb-8">"{test.quote}"</p>
-                            <div className="mt-auto pt-6 border-t border-gray-50 flex items-center flex-col gap-3 w-full">
-                                <div className="flex text-yellow-400 gap-1.5">
-                                    {[...Array(5)].map((_, i) => <Star key={i} size={20} fill="currentColor" />)}
+            {/* ── What Others Say ── */}
+            <section className="py-28 px-6 lg:px-16 bg-[#f8fafc] dark:bg-gray-900 reveal">
+                <div className="max-w-7xl mx-auto text-center">
+                    <h2 className="text-4xl lg:text-5xl font-extrabold text-[#0a1e2b] dark:text-white mb-4 tracking-tight">What Others Say</h2>
+                    <p className="text-gray-500 dark:text-gray-400 text-lg mb-16 max-w-3xl mx-auto font-medium">
+                        Join thousands of successful students, teachers and guardians who have transformed their academic journey with AllThingsCambridge.
+                    </p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {testimonials.map((test, idx) => (
+                            <div key={idx} className="bg-white dark:bg-gray-800 p-8 rounded-2xl shadow-[0_4px_24px_rgba(0,0,0,0.03)] border border-gray-50 dark:border-gray-700 flex flex-col text-left hover:shadow-lg transition-all hover:-translate-y-1 reveal" style={{ transitionDelay: `${idx * 150}ms` }}>
+                                <div className="flex gap-1.5 mb-6 text-yellow-400">
+                                    {[...Array(test.stars)].map((_, i) => <Star key={`filled-${i}`} size={18} fill="currentColor" strokeWidth={0} />)}
+                                    {[...Array(5 - test.stars)].map((_, i) => <Star key={`empty-${i}`} size={18} className="text-gray-300 dark:text-gray-600" strokeWidth={1.5} />)}
                                 </div>
-                                <span className="text-gray-400 text-sm font-black tracking-widest uppercase">-{test.name}</span>
+                                <p className="text-gray-600 dark:text-gray-300 italic leading-relaxed mb-8 flex-1 text-[15px]">"{test.quote}"</p>
+                                <div className="flex items-center gap-4 mt-auto">
+                                    <img src={test.img} alt={test.name} className="w-12 h-12 rounded-full object-cover border border-gray-100 dark:border-gray-700" />
+                                    <div>
+                                        <h4 className="text-primary-950 dark:text-gray-100 font-bold text-[15px]">{test.name}</h4>
+                                        <p className="text-gray-500 dark:text-gray-400 text-xs font-medium">{test.title}</p>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        ))}
+                    </div>
                 </div>
             </section>
 
@@ -337,21 +379,7 @@ const HomePage = () => {
                 </div>
             </section>
 
-            {/* ── Footer ── */}
-            <footer className="py-16 bg-white border-t border-gray-50 px-6 lg:px-16 text-center">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-                    <div className="flex items-center gap-3">
-                        <img src="/icon.png" alt="ATC" className="w-8 h-8 rounded-lg" />
-                        <span className="font-black text-xl text-primary-950 tracking-tighter">AllThingsCambridge</span>
-                    </div>
-                    <div className="flex gap-8 text-gray-400 font-bold text-sm">
-                        <Link to="/about" className="hover:text-primary-600">About Us</Link>
-                        <Link to="/contact" className="hover:text-primary-600">Contact</Link>
-                        <Link to="/privacy" className="hover:text-primary-600">Privacy Policy</Link>
-                    </div>
-                    <p className="text-gray-400 text-sm font-bold">&copy; {new Date().getFullYear()} AllThingsCambridge.</p>
-                </div>
-            </footer>
+
         </div>
     )
 }
