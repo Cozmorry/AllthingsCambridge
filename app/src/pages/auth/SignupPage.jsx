@@ -17,7 +17,7 @@ const SignupPage = () => {
         if (form.password !== form.confirm) return setError('Passwords do not match.')
         if (form.password.length < 6) return setError('Password must be at least 6 characters.')
         setLoading(true)
-        const { error: err } = await signUp({ email: form.email, password: form.password, fullName: form.fullName })
+        const { error: err } = await signUp({ email: form.email.trim(), password: form.password, fullName: form.fullName })
         setLoading(false)
         if (err) return setError(err.message)
         setSuccess(true)

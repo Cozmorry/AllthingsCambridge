@@ -8,12 +8,17 @@ const AdminDashboard = () => {
 
     useEffect(() => {
         const load = async () => {
+            
             const [users, subjects, payments, levels] = await Promise.all([
                 supabase.from('profiles').select('id', { count: 'exact', head: true }),
                 supabase.from('subjects').select('id', { count: 'exact', head: true }),
                 supabase.from('payments').select('id', { count: 'exact', head: true }).eq('status', 'success'),
                 supabase.from('levels').select('id', { count: 'exact', head: true }),
             ])
+
+            if (users.error) console.error("Admin: Profiles check blocked by RLS. Authenticated session required for real counts.")
+            if (payments.error) console.error("Admin: Payments check blocked by RLS.")
+
             setStats({
                 users: users.count ?? 0,
                 subjects: subjects.count ?? 0,

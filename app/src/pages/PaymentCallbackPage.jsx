@@ -10,22 +10,32 @@ const PaymentCallbackPage = () => {
     const navigate = useNavigate()
     const [status, setStatus] = useState('verifying')
     const reference = searchParams.get('reference')
+    const planFromUrl = searchParams.get('plan') || 'monthly'
+    const amountFromUrl = searchParams.get('amount')
+    const currencyFromUrl = searchParams.get('currency') || 'USD'
 
     useEffect(() => {
         const verify = async () => {
             if (!reference || !user) return
 
-            // Record payment in DB
+            // Record the "real value" in USD cents (e.g., 999 for $9.99) regardless of local currency conversion
+            const recordAmount = planFromUrl === 'annual' ? 9999 : 999
+
+            let paymentError = null
+
+            // Record Payment in authentic DB session
             const { error } = await supabase.from('payments').insert({
                 user_id: user.id,
                 paystack_reference: reference,
                 status: 'success',
-                plan: 'monthly',
-                amount: 2000,
+                plan: planFromUrl,
+                amount: recordAmount,
+                currency: 'USD', // Recording as USD since that is the "real value" requested
             })
+            paymentError = error
 
-            if (!error) {
-                // Mark user as subscribed
+            if (!paymentError) {
+                // Mark user as subscribed in real DB
                 await supabase.from('profiles').update({
                     is_subscribed: true,
                     subscribed_until: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
@@ -34,11 +44,12 @@ const PaymentCallbackPage = () => {
                 setStatus('success')
                 setTimeout(() => navigate('/account'), 3000)
             } else {
+                console.error("Payment insert error:", paymentError)
                 setStatus('error')
             }
         }
         verify()
-    }, [reference, user, navigate])
+    }, [reference, user, navigate, planFromUrl])
 
     return (
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center px-6">

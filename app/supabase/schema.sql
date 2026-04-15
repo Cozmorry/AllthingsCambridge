@@ -174,6 +174,7 @@ create table payments (
     paystack_reference text unique not null,
     plan text not null,
     amount int not null,
+    currency text not null default 'USD',
     status payment_status not null default 'pending',
     created_at timestamptz not null default now()
 );
@@ -202,7 +203,7 @@ select using (true);
 create policy "Public can read resources" on resources for
 select using (
         not is_premium
-        or auth.uid() is not null
+        or get_active_user_id() is not null
     );
 create policy "Public can read decks" on flashcard_decks for
 select using (true);
@@ -214,32 +215,54 @@ create policy "Public can read forum posts" on forum_posts for
 select using (true);
 create policy "Public can read forum replies" on forum_replies for
 select using (true);
+-- Function to get the current user ID, favoring JWT but falling back to Passkey header
+create or replace function get_active_user_id() returns uuid language plpgsql security definer
+set search_path = public as $$
+declare
+  active_user_id uuid;
+begin
+  active_user_id := auth.uid();
+  if active_user_id is null then
+    begin
+      active_user_id := (current_setting('request.headers', true)::json->>'x-passkey-user')::uuid;
+    exception when others then
+      active_user_id := null;
+    end;
+  end if;
+  return active_user_id;
+end;
+$$;
+
+-- Security Definer function to check admin role
+create or replace function is_admin() returns boolean language plpgsql security definer
+set search_path = public as $$ 
+begin
+  return (
+    select (role = 'admin')
+    from public.profiles
+    where id = get_active_user_id()
+  );
+end;
+$$;
 -- Profiles
 create policy "Users can read own profile" on profiles for
-select using (auth.uid() = id);
+select using (get_active_user_id() = id);
 create policy "Users can update own profile" on profiles for
-update using (auth.uid() = id);
+update using (get_active_user_id() = id);
 create policy "Admins can read all profiles" on profiles for
-select using (
-        exists (
-            select 1
-            from profiles
-            where id = auth.uid()
-                and role = 'admin'
-        )
-    );
+select using (is_admin());
 -- User can write own flashcard progress
-create policy "User manages own progress" on user_flashcard_progress for all using (auth.uid() = user_id);
+create policy "User manages own progress" on user_flashcard_progress for all using (get_active_user_id() = user_id);
 -- Users can post to forums
 create policy "Auth users can create forum posts" on forum_posts for
-insert with check (auth.uid() = author_id);
+insert with check (get_active_user_id() = author_id);
 create policy "Auth users can create replies" on forum_replies for
-insert with check (auth.uid() = author_id);
+insert with check (get_active_user_id() = author_id);
 -- Users can insert their own payments
 create policy "Users can insert payments" on payments for
-insert with check (auth.uid() = user_id);
+insert with check (get_active_user_id() = user_id);
 create policy "Users can read own payments" on payments for
-select using (auth.uid() = user_id);
+select using (get_active_user_id() = user_id);
 -- Admins can do everything
 create policy "Admins full access on levels" on levels for all using (
     exists (
@@ -298,14 +321,7 @@ create policy "Admins full access on blog" on blog_posts for all using (
     )
 );
 create policy "Admins read all payments" on payments for
-select using (
-        exists (
-            select 1
-            from profiles
-            where id = auth.uid()
-                and role = 'admin'
-        )
-    );
+select using (is_admin());
 -- ========================================================
 -- Storage bucket
 -- ========================================================

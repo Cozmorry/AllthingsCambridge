@@ -5,17 +5,17 @@
 
 /* ========== Design Tokens ========== */
 @theme {
-  /* Primary — Teal */
-  --color-primary-50: #e6f5f4;
-  --color-primary-100: #ccebe9;
-  --color-primary-200: #99d7d3;
-  --color-primary-300: #66c3bd;
-  --color-primary-400: #33afa7;
-  --color-primary-500: #009b91;
-  --color-primary-600: #007c74;
-  --color-primary-700: #005d57;
-  --color-primary-800: #004d47;
-  --color-primary-900: #002e2b;
+  /* Primary — Professional Blue */
+  --color-primary-50: #f0f4ff;
+  --color-primary-100: #e1e7ff;
+  --color-primary-200: #c9d3ff;
+  --color-primary-300: #a4b3ff;
+  --color-primary-400: #7a8cff;
+  --color-primary-500: #5566ff;
+  --color-primary-600: #3b46ff;
+  --color-primary-700: #2d36cc;
+  --color-primary-800: #232a99;
+  --color-primary-900: #1a1f66;
 
   /* Secondary — Gold */
   --color-secondary-50: #fff9e6;
@@ -188,7 +188,18 @@ body {
 }
 
 .animate-fade-up {
-  animation: fadeUp 0.5s ease-out both;
+  animation: fadeUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .animate-float {
@@ -314,13 +325,13 @@ body {
 }
 
 .dark .bg-white,
-.dark [class*="bg-white"] {
+.dark .bg-white:not(.bg-transparent) {
   background-color: #1e293b !important;
   border-color: #334155 !important;
 }
 
-.dark [class*="bg-[#f3f4f9]"],
-.dark [class*="bg-[#f8fafc]"],
+.dark .bg-\[\#f3f4f9\],
+.dark .bg-\[\#f8fafc\],
 .dark .bg-gray-50 {
   background-color: #0c1220 !important;
 }

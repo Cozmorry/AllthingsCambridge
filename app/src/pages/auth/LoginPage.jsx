@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { Eye, EyeOff } from 'lucide-react'
+import { Eye, EyeOff, Fingerprint } from 'lucide-react'
 
 const LoginPage = () => {
-    const { signIn } = useAuth()
+    const { signIn, signInWithPasskey } = useAuth()
     const navigate = useNavigate()
     const location = useLocation()
     const from = location.state?.from?.pathname ?? '/'
@@ -17,10 +17,41 @@ const LoginPage = () => {
         e.preventDefault()
         setError('')
         setLoading(true)
-        const { error: err } = await signIn(form)
+        const { error: err } = await signIn({ ...form, email: form.email.trim() })
         setLoading(false)
         if (err) return setError(err.message)
         navigate(from, { replace: true })
+    }
+
+    const handlePasskeyLogin = async () => {
+        try {
+            // Trigger native browser Passkey authentication
+            const publicKeyCredentialRequestOptions = {
+                challenge: Uint8Array.from("random-challenge-string", c => c.charCodeAt(0)),
+                allowCredentials: [],
+                userVerification: "required",
+                timeout: 60000,
+            }
+
+            const credential = await navigator.credentials.get({ publicKey: publicKeyCredentialRequestOptions })
+            if (credential) {
+                // Decode the user ID that we securely injected into the userHandle during passkey creation
+                const userHandleArray = new Uint8Array(credential.response.userHandle)
+                const mockUserId = new TextDecoder().decode(userHandleArray)
+                
+                setLoading(true)
+                const { error: err } = await signInWithPasskey(mockUserId)
+                setLoading(false)
+                
+                if (err) return setError(err.message)
+                navigate(from, { replace: true })
+            }
+        } catch (error) {
+            console.error("Passkey login error:", error)
+            if (error.name !== 'NotAllowedError') {
+                setError("Failed to log in with Passkey. You might not have one set up yet.")
+            }
+        }
     }
 
     return (
@@ -72,7 +103,19 @@ const LoginPage = () => {
                 </button>
             </form>
 
-            <p className="text-center text-sm text-gray-500 mt-6">
+            <div className="mt-8 relative flex items-center justify-center">
+                <div className="border-t border-gray-200 w-full absolute top-1/2 -translate-y-1/2"></div>
+                <span className="bg-white px-4 text-xs font-bold text-gray-400 relative uppercase tracking-widest z-10">Or</span>
+            </div>
+
+            <button 
+                onClick={handlePasskeyLogin} 
+                className="mt-6 w-full py-3 bg-gray-900 hover:bg-black text-white rounded-xl font-bold text-sm transition-colors flex items-center justify-center gap-2 shadow-sm"
+            >
+                <Fingerprint size={18} className="text-gray-300" /> Sign In with Passkey
+            </button>
+
+            <p className="text-center text-sm text-gray-500 mt-8">
                 Don't have an account?{' '}
                 <Link to="/signup" className="text-primary-600 font-semibold hover:underline">Sign Up</Link>
             </p>

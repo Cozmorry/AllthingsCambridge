@@ -17,7 +17,7 @@ const AdminPayments = () => {
             <div className="flex items-center justify-between mb-8">
                 <h1 className="text-3xl font-black text-gray-900 tracking-tight">Payments</h1>
                 <div className="bg-green-50 border border-green-200 px-5 py-2.5 rounded-xl text-sm font-bold text-green-800 shadow-sm flex items-center gap-2">
-                    Total Revenue: GHS {(total / 100).toFixed(2)}
+                    Total Revenue: USD {(total / 100).toFixed(2)}
                 </div>
             </div>
             <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden shadow-sm">
@@ -44,7 +44,7 @@ const AdminPayments = () => {
                                     <td className="font-bold text-gray-900 py-4">{p.profiles?.full_name ?? '—'}</td>
                                     <td className="text-xs font-mono text-gray-400 py-4">{p.paystack_reference}</td>
                                     <td className="capitalize text-gray-700 py-4 font-bold">{p.plan}</td>
-                                    <td className="text-gray-900 font-black py-4 text-right">GHS {(p.amount / 100).toFixed(2)}</td>
+                                    <td className="text-gray-900 font-black py-4 text-right">USD {(p.amount / 100).toFixed(2)}</td>
                                     <td className="py-4 pr-6 text-right">
                                         <span className={`px-2 py-1 rounded-md text-[10px] uppercase tracking-wider font-bold border ${p.status === 'success' ? 'bg-green-50 text-green-700 border-green-200' :
                                                 p.status === 'failed' ? 'bg-red-50 text-red-700 border-red-200' :

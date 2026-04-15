@@ -10,7 +10,7 @@ const STORAGE_KEY = 'atc_resource_views'
  * Subscribed users always have full access.
  */
 export const usePaywall = () => {
-    const { user, isSubscribed } = useAuth()
+    const { user, hasPremiumAccess } = useAuth()
 
     const getViews = () => {
         try {
@@ -24,17 +24,17 @@ export const usePaywall = () => {
 
     const viewCount = viewedIds.length
     const viewsRemaining = Math.max(0, FREE_VIEW_LIMIT - viewCount)
-    const isLocked = !isSubscribed && viewCount >= FREE_VIEW_LIMIT
+    const isLocked = !hasPremiumAccess && viewCount >= FREE_VIEW_LIMIT
 
     const recordView = useCallback((resourceId) => {
-        if (isSubscribed) return // subscribers don't get metered
+        if (hasPremiumAccess) return // subscribers don't get metered
         const current = getViews()
         const id = String(resourceId)
         if (current.includes(id)) return // already counted
         const updated = [...current, id]
         localStorage.setItem(STORAGE_KEY, JSON.stringify(updated))
         setViewedIds(updated)
-    }, [isSubscribed])
+    }, [hasPremiumAccess])
 
     const hasViewed = useCallback((resourceId) => {
         return viewedIds.includes(String(resourceId))
@@ -47,7 +47,7 @@ export const usePaywall = () => {
         freeLimit: FREE_VIEW_LIMIT,
         recordView,
         hasViewed,
-        isSubscribed,
+        isSubscribed: hasPremiumAccess,
         isLoggedIn: !!user,
     }
 }

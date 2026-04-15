@@ -56,7 +56,7 @@ const PaywallGate = ({ children }) => {
                             state={{ from: location.pathname + location.search }}
                             className="flex items-center justify-center w-full py-3.5 bg-primary-600 hover:bg-primary-700 text-white font-bold rounded-xl transition-colors shadow-md shadow-primary-600/20"
                         >
-                            {isLoggedIn ? 'Subscribe for $5/month' : 'Sign Up to Unlock'}
+                            {isLoggedIn ? 'Unlock Unlimited Access' : 'Sign Up to Unlock'}
                         </Link>
                         
                         {!isLoggedIn && (
